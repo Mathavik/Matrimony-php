@@ -62,7 +62,7 @@ const UserSuccess: React.FC = () => {
   // Fetch stories function
   const fetchStories = async () => {
     try {
-      const res = await axios.get("http://localhost:5000/api/stories/getstories");
+      const res = await axios.get("http://localhost/Matrimony-php/backend/api/stories/getstories");
       const allStories = res.data || [];
 
       if (currentUserId !== null) {
@@ -90,7 +90,7 @@ const UserSuccess: React.FC = () => {
       return imagePath;
     }
     const cleanPath = imagePath.startsWith("/") ? imagePath.substring(1) : imagePath;
-    return `http://localhost:5000/${cleanPath}`;
+    return `http://localhost/Matrimony-php/backend/${cleanPath}`;
   };
 
 
@@ -189,7 +189,7 @@ const UserSuccess: React.FC = () => {
 
     try {
       const response = await axios.delete(
-        `http://localhost:5000/api/stories/deletestory/${storyId}`,
+        `http://localhost/Matrimony-php/backend/api/stories/deletestory/${storyId}`,
         {
           data: { userId: currentUserId }
         }

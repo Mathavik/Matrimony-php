@@ -126,7 +126,7 @@ const Banner: React.FC = () => {
       return toast.error("Please select gender!");
 
     try {
-      const response = await fetch("http://localhost:5000/api/send-otp", {
+      const response = await fetch("http://localhost/Matrimony-php/backend/api/otp/sendOtp.php", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email, name, relation, gender }),
@@ -169,7 +169,7 @@ const Banner: React.FC = () => {
     if (otp.join("").length !== 6) return toast.error("Please enter all 6 digits of OTP");
 
     try {
-      const response = await fetch("http://localhost:5000/api/verify-otp", {
+      const response = await fetch("http://localhost/Matrimony-php/backend/api/otp/verifyOtp.php", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email, otp: otp.join("") }),

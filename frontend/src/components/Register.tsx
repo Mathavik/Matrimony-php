@@ -225,7 +225,7 @@ const ModernRegister = () => {
         formDataToSend.append('profilePhoto', formData.profilePhoto);
       }
 
-      const response = await fetch('http://localhost:5000/api/register/register', {
+      const response = await fetch('http://localhost/Matrimony-php/backend/api/Register/createRegister.php', {
         method: 'POST',
         body: formDataToSend,
       });

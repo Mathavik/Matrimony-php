@@ -80,7 +80,7 @@ const UserListItem = ({ user, type }: any) => {
   const getPhotoUrl = (photo: string | null | undefined) => {
     if (!photo) return undefined;
     if (photo.startsWith("http")) return photo;
-    return `http://localhost:5000/uploads/${photo}`;
+    return `http://localhost/Matrimony-php/backend/uploads/${photo}`;
   };
 
   return (
@@ -154,7 +154,7 @@ const ProfilePage = () => {
   const fetchProfile = async () => {
     try {
       setLoading(true);
-      const res = await axios.get(`http://localhost:5000/api/register/users/${userId}`);
+      const res = await axios.get(`http://localhost/Matrimony-php/backend/api/register/getUserById.php?id=${userId}`);
       const userData = {
         ...res.data.user,
         isPublic: res.data.user.isPublic !== false,
