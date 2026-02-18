@@ -36,7 +36,7 @@ const UserRequest: React.FC = () => {
     const [loading, setLoading] = useState(true);
     const [selectedSender, setSelectedSender] = useState<UserRequest["sender"] | null>(null);
 
-    const BASE_URL = "http://localhost:5000";
+    const BASE_URL = "http://localhost/Matrimony-php/backend";
 
     const [message, setMessage] = useState<{ text: string; type: 'success' | 'error' } | null>(null);
 

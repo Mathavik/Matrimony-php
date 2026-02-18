@@ -10,7 +10,7 @@ interface HelpFormData {
   message: string;
 }
 
-const API_URL = 'http://localhost:5000/api/help';
+const API_URL = 'http://localhost/Matrimony-php/backend/api/Help/getHelp.php';
 
 // --- WedAura Logo Component ---
 const WedAuraLogo: React.FC = () => (

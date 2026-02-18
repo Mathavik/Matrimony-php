@@ -1,7 +1,7 @@
 import axios from 'axios';
 const axiosInstance = axios.create({
-  // Keep baseURL as server root — route paths in the frontend include `/api` already.
-  baseURL: 'http://localhost:5000',
+  // Point to local PHP backend (XAMPP). Frontend routes include `/api/...`.
+  baseURL: 'http://localhost/Matrimony-php/backend',
   headers: {
     'Content-Type': 'application/json',
   },

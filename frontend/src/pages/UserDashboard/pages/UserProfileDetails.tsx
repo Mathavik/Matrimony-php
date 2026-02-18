@@ -134,10 +134,9 @@ const ProfileDetails: React.FC = () => {
             setLoading(true);
             setError(null);
 
-            const userRes = await axios.get(`http://localhost:5000/api/register/users/${routeId}`);
+            const userRes = await axios.get(`http://localhost/Matrimony-php/backend/api/register/getUserById.php?id=${routeId}`);
             setUser(userRes.data.user);
-
-            const relatedRes = await axios.get(`http://localhost:5000/api/register/related/${routeId}`);
+            const relatedRes = await axios.get(`http://localhost/Matrimony-php/backend/api/register/getRelated.php?userId=${routeId}`);
             setRelatedProfiles(relatedRes.data.relatedProfiles);
         } catch (err: any) {
             console.error('Fetch error:', err);
@@ -157,7 +156,7 @@ const ProfileDetails: React.FC = () => {
                 const loggedInUserId = localStorage.getItem("userId");
                 if (!loggedInUserId || !routeId) return;
 
-                const res = await axios.get(`http://localhost:5000/api/request/status`, {
+                const res = await axios.get(`http://localhost/Matrimony-php/backend/api/request/getStatus.php`, {
                     params: { senderId: loggedInUserId, receiverId: routeId },
                 });
 
