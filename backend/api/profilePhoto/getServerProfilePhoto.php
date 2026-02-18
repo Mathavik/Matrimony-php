@@ -1,30 +1,62 @@
 <?php
-require_once __DIR__ . '/../../config/db.php';
+require_once "../../config/db.php";
 
-$filename = isset($_GET['filename']) ? basename($_GET['filename']) : null;
+
+$filename = $_GET['filename'] ?? null;
+
 if (!$filename) {
-	http_response_code(400);
-	echo json_encode(['status' => false, 'message' => 'Filename required']);
-	exit;
+    http_response_code(400);
+    exit;
 }
 
-$path = UPLOAD_DIR . $filename;
-if (!file_exists($path)) {
-	http_response_code(404);
-	echo json_encode(['status' => false, 'message' => 'File not found']);
-	exit;
+$filePath = "../uploads/" . $filename;
+
+if (!file_exists($filePath)) {
+    http_response_code(404);
+    exit("Image not found");
 }
 
-$ext = strtolower(pathinfo($path, PATHINFO_EXTENSION));
-$mime = 'application/octet-stream';
-switch ($ext) {
-	case 'jpg': case 'jpeg': $mime = 'image/jpeg'; break;
-	case 'png': $mime = 'image/png'; break;
-	case 'gif': $mime = 'image/gif'; break;
+// Check JWT
+$isPremium = false;
+
+$headers = getallheaders();
+
+if (isset($headers['Authorization'])) {
+    $token = str_replace("Bearer ", "", $headers['Authorization']);
+
+    $secret = "your-secret-key";
+
+    $parts = explode('.', $token);
+
+    if (count($parts) === 3) {
+        $payload = json_decode(base64_decode($parts[1]), true);
+        $userId = $payload['id'] ?? null;
+
+        if ($userId) {
+            $result = $conn->query("SELECT isPremium FROM users WHERE id=$userId");
+            if ($result->num_rows > 0) {
+                $user = $result->fetch_assoc();
+                $isPremium = $user['isPremium'];
+            }
+        }
+    }
 }
 
-header('Content-Type: ' . $mime);
-header('Cache-Control: public, max-age=86400');
-readfile($path);
+// If Premium → serve original
+if ($isPremium) {
+    header("Content-Type: image/jpeg");
+    readfile($filePath);
+    exit;
+}
 
+// If Not Premium → Blur using GD
+$image = imagecreatefromjpeg($filePath);
+
+for ($i = 0; $i < 5; $i++) {
+    imagefilter($image, IMG_FILTER_GAUSSIAN_BLUR);
+}
+
+header("Content-Type: image/jpeg");
+imagejpeg($image);
+imagedestroy($image);
 ?>
