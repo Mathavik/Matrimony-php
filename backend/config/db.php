@@ -2,7 +2,7 @@
 // Database Configuration
 define('DB_HOST', 'localhost');
 define('DB_USER', 'root');
-define('DB_PASS', 'mathavi33');
+define('DB_PASS', 'jesi44');
 define('DB_NAME', 'matrimonydb');
 define('DB_PORT', 3306);
 
@@ -55,13 +55,5 @@ function getDBConnection() {
     }
 }
 
-// 🔥 Direct Check (Only for testing)
-$conn = getDBConnection();
-
-if ($conn) {
-    echo json_encode([
-        "status" => true,
-        "message" => "Database Connected Successfully"
-    ]);
-}
+// Note: do not run a direct connection test here — include and call getDBConnection() where needed.
 ?>
