@@ -181,7 +181,7 @@ const Banner: React.FC = () => {
         setShowOtpModal(false);
         sessionStorage.setItem("otpVerified", "true");
         sessionStorage.setItem("user", JSON.stringify(data.user));
-        navigate("/brides&groom");
+        navigate("/register");
       } else {
         // Friendly user messages
         switch (data.code) {
