@@ -7,6 +7,7 @@ import 'sweetalert2/dist/sweetalert2.min.css';
 import ModernRegister from "../components/Register";
 import Login from '../components/Login';
 import Signin from '../components/signin';
+import axiosInstance from '../axiosInstance';
 
 interface UserProfile {
   id: number;
@@ -126,7 +127,7 @@ const BioData: React.FC = () => {
     const fetchFavorites = async () => {
       try {
         if (!userId) return;
-        const res = await axios.get(`http://localhost:5000/api/favorites/${userId}`);
+        const res = await axios.get(`/api/favorites/getFavorites.php?userId=${userId}`);
         const favs = res.data?.favorites || [];
         const favSet = new Set<number>(favs.map((f: any) => Number(f.favoriteUserId)));
         setFavorites(favSet);
@@ -221,10 +222,10 @@ const BioData: React.FC = () => {
 
       const isFav = favorites.has(favoriteUserId);
       if (isFav) {
-        await axios.post('http://localhost:5000/api/favorites/remove', {
-          userId: loggedInUserId,
-          favoriteUserId,
-        });
+       await axiosInstance.post('/api/favorites/removeFavorite.php', {
+  userId: loggedInUserId,
+  favoriteUserId,
+});
         const updated = new Set(favorites);
         updated.delete(favoriteUserId);
         setFavorites(updated);

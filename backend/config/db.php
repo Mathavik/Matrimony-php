@@ -2,9 +2,17 @@
 // Database Configuration
 define('DB_HOST', 'localhost');
 define('DB_USER', 'root');
-define('DB_PASS', 'mathavi33');
+define('DB_PASS', 'maha');
 define('DB_NAME', 'matrimonydb');
 define('DB_PORT', 3306);
+
+// INTHA LINE-AH ADD PANNUNGA (Idhu dhaan missing)
+$conn = new mysqli(DB_HOST, DB_USER, DB_PASS, DB_NAME, DB_PORT);
+
+// Connection-ah check panna
+if ($conn->connect_error) {
+    die(json_encode(["message" => "Connection failed: " . $conn->connect_error]));
+}
 
 // Server Configuration
 define('SERVER_URL', 'http://localhost:8000');

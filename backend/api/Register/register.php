@@ -1,87 +1,74 @@
 <?php
 header("Content-Type: application/json");
-// require_once("../../config/db.php");
+require_once(__DIR__ . "/../../config/db.php");
 
-$conn = new mysqli("localhost", "root", "maha", "matrimonydb");
+// $conn = new mysqli("localhost", "root", "maha", "matrimonydb");
 
 if ($conn->connect_error) {
-    die("Connection failed: " . $conn->connect_error);
+    die(json_encode(["message" => "Connection failed"]));
 }
 
-
-
 $data = json_decode(file_get_contents("php://input"), true);
+$email = trim($data['email'] ?? '');
 
-$email = $data['email'] ?? '';
-$passwordInput = $data['password'] ?? '';
-
-if (!$email || !$passwordInput) {
-    echo json_encode(["message" => "Email and Password required"]);
+if (!$email) {
+    echo json_encode(["message" => "Email required"]);
     exit;
 }
 
-$password = password_hash($passwordInput,PASSWORD_BCRYPT);
+// 1. Check if user was already created during OTP verification
+$check = $conn->prepare("SELECT id FROM users WHERE email = ?");
+$check->bind_param("s", $email);
+$check->execute();
+$res = $check->get_result();
+$user = $res->fetch_assoc();
 
-$stmt = $conn->prepare("
-INSERT INTO users (
-profileFor, fullName, gender, dob, age, religion, motherTongue, maritalStatus,
-caste, height, education, occupation, annualIncome,
-country, state, city, email, mobile, password,
-profilePhoto, status, isPremium, isPublic,
-rule1, rule2, rule3, rule4, rule5,
-createdAt, updatedAt
-)
-VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,NOW(),NOW())
-");
-
-if (!$stmt) {
-    die("Prepare Error: " . $conn->error);
+if (!$user) {
+    echo json_encode(["message" => "User not found. Please verify OTP first."]);
+    exit;
 }
 
-$profilePhoto = "";
-$status = "approved";
-$isPremium = 0;
-$isPublic = 1;
+$userId = $user['id'];
+$password = password_hash($data['password'] ?? '', PASSWORD_BCRYPT);
 
-// The string below has 28 characters: 4 's', 1 'i', 15 's', 8 'i'
+// 2. INSERT-ku badhila UPDATE use pandrom
+$stmt = $conn->prepare("
+    UPDATE users SET 
+    dob = ?, age = ?, religion = ?, motherTongue = ?, maritalStatus = ?, 
+    caste = ?, height = ?, education = ?, occupation = ?, annualIncome = ?, 
+    country = ?, state = ?, city = ?, mobile = ?, password = ?, 
+    status = 'approved', updatedAt = NOW()
+    WHERE id = ?
+");
+
+// Pre-assign variables for bind_param
+$dob = $data['dob'] ?? '';
+$age = (int)($data['age'] ?? 0);
+$religion = $data['religion'] ?? '';
+$mTongue = $data['motherTongue'] ?? '';
+$mStatus = $data['maritalStatus'] ?? '';
+$caste = $data['caste'] ?? '';
+$height = $data['height'] ?? '';
+$edu = $data['education'] ?? '';
+$occ = $data['occupation'] ?? '';
+$income = $data['annualIncome'] ?? '';
+$country = $data['country'] ?? '';
+$state = $data['state'] ?? '';
+$city = $data['city'] ?? '';
+$mobile = $data['mobile'] ?? '';
+
 $stmt->bind_param(
-    "ssssisssssssssssssssiiiiiiii", 
-    $data['profileFor'],
-    $data['fullName'],
-    $data['gender'],
-    $data['dob'],
-    $data['age'],          // i (1)
-    $data['religion'],
-    $data['motherTongue'],
-    $data['maritalStatus'],
-    $data['caste'],
-    $data['height'],
-    $data['education'],
-    $data['occupation'],
-    $data['annualIncome'],
-    $data['country'],
-    $data['state'],
-    $data['city'],
-    $email,
-    $data['mobile'],
-    $password,
-    $profilePhoto,
-    $status,               // End of strings
-    $isPremium,            // i (2)
-    $isPublic,             // i (3)
-    $data['rule1'],        // i (4)
-    $data['rule2'],        // i (5)
-    $data['rule3'],        // i (6)
-    $data['rule4'],        // i (7)
-    $data['rule5']         // i (8)
+    "sisssssssssssssi", 
+    $dob, $age, $religion, $mTongue, $mStatus, 
+    $caste, $height, $edu, $occ, $income, 
+    $country, $state, $city, $mobile, $password, 
+    $userId
 );
 
-
-
 if ($stmt->execute()) {
-    echo json_encode(["message" => "Registration successful"]);
+    echo json_encode(["message" => "Registration Successful (Profile Updated)"]);
 } else {
-    echo json_encode(["message" => "Registration failed", "error" => $stmt->error]);
+    echo json_encode(["message" => "Update failed", "error" => $stmt->error]);
 }
 
 $conn->close();
