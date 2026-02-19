@@ -2,54 +2,67 @@
 header("Content-Type: application/json");
 require_once(__DIR__ . "/../../config/db.php");
 
-$email = $_POST['email'] ?? '';
-
-if (!$email) {
-    echo json_encode(["message"=>"Email required"]);
+// Get id from URL
+$id = $_GET['id'] ?? null;
+if (!$id) {
+    echo json_encode(["message" => "User ID required"]);
     exit;
 }
 
-$password = password_hash($_POST['password'], PASSWORD_BCRYPT);
+// Hash password if provided
+$password = !empty($_POST['password']) ? password_hash($_POST['password'], PASSWORD_BCRYPT) : null;
 
-$stmt = $conn->prepare("
+// Prepare SQL
+$sql = "
 UPDATE users SET
 dob=?, age=?, religion=?, motherTongue=?, maritalStatus=?,
 caste=?, height=?, education=?, occupation=?, annualIncome=?,
-country=?, state=?, city=?, mobile=?, password=?,
-rule1=?, rule2=?, rule3=?, rule4=?, rule5=?,
-updatedAt=NOW()
-WHERE email=?
-");
+country=?, state=?, city=?, mobile=?";
 
-$stmt->bind_param(
-"sssssssssssssssiiiiis",
-$_POST['dob'],
-$_POST['age'],
-$_POST['religion'],
-$_POST['motherTongue'],
-$_POST['maritalStatus'],
-$_POST['caste'],
-$_POST['height'],
-$_POST['education'],
-$_POST['occupation'],
-$_POST['annualIncome'],
-$_POST['country'],
-$_POST['state'],
-$_POST['city'],
-$_POST['mobile'],
-$password,
-$_POST['rule1'],
-$_POST['rule2'],
-$_POST['rule3'],
-$_POST['rule4'],
-$_POST['rule5'],
-$email
-);
+$params = [
+    $_POST['dob'] ?? null,
+    $_POST['age'] ?? null,
+    $_POST['religion'] ?? null,
+    $_POST['motherTongue'] ?? null,
+    $_POST['maritalStatus'] ?? null,
+    $_POST['caste'] ?? null,
+    $_POST['height'] ?? null,
+    $_POST['education'] ?? null,
+    $_POST['occupation'] ?? null,
+    $_POST['annualIncome'] ?? null,
+    $_POST['country'] ?? null,
+    $_POST['state'] ?? null,
+    $_POST['city'] ?? null,
+    $_POST['mobile'] ?? null
+];
+
+// Add password if provided
+if ($password) {
+    $sql .= ", password=?";
+    $params[] = $password;
+}
+
+// Add rules if provided
+for ($i = 1; $i <= 5; $i++) {
+    $rule = isset($_POST["rule$i"]) ? $_POST["rule$i"] : 0; // default to 0
+
+    $sql .= ", rule$i=?";
+    $params[] = $rule;
+}
+
+$sql .= ", updatedAt=NOW() WHERE id=?";
+$params[] = $id;
+
+// Bind types: s = string, i = int
+$types = str_repeat("s", count($params)-1) . "i";
+
+$stmt = $conn->prepare($sql);
+$stmt->bind_param($types, ...$params);
 
 if ($stmt->execute()) {
-    echo json_encode(["message"=>"User updated successfully"]);
+    echo json_encode(["message" => "User updated successfully"]);
 } else {
-    echo json_encode(["message"=>"Update failed","error"=>$stmt->error]);
+    echo json_encode(["message" => "Update failed", "error" => $stmt->error]);
 }
 
 $conn->close();

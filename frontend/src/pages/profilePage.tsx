@@ -243,7 +243,7 @@ const ProfilePage = () => {
       }
 
       const res = await axios.put(
-        `http://localhost:5000/api/register/update/${userId}`,
+        `http://localhost/Matrimony-php/backend/api/register/updateUser.php?id=${userId}`,
         formData,
         { headers: { "Content-Type": "multipart/form-data" } }
       );
