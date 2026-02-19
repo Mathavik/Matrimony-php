@@ -43,13 +43,14 @@ $status = "approved";
 $isPremium = 0;
 $isPublic = 1;
 
+// The string below has 28 characters: 4 's', 1 'i', 15 's', 8 'i'
 $stmt->bind_param(
-    "ssssisssssssssssssssiiiiiii", // Total 28 characters
+    "ssssisssssssssssssssiiiiiiii", 
     $data['profileFor'],
     $data['fullName'],
     $data['gender'],
     $data['dob'],
-    $data['age'],          // i
+    $data['age'],          // i (1)
     $data['religion'],
     $data['motherTongue'],
     $data['maritalStatus'],
@@ -65,14 +66,14 @@ $stmt->bind_param(
     $data['mobile'],
     $password,
     $profilePhoto,
-    $status,               // s
-    $isPremium,            // i
-    $isPublic,             // i
-    $data['rule1'],        // i
-    $data['rule2'],        // i
-    $data['rule3'],        // i
-    $data['rule4'],        // i
-    $data['rule5']         // i
+    $status,               // End of strings
+    $isPremium,            // i (2)
+    $isPublic,             // i (3)
+    $data['rule1'],        // i (4)
+    $data['rule2'],        // i (5)
+    $data['rule3'],        // i (6)
+    $data['rule4'],        // i (7)
+    $data['rule5']         // i (8)
 );
 
 
