@@ -270,7 +270,8 @@ const ProfilePage = () => {
       if (!userId) return;
       (async () => {
         try {
-          await axios.patch(`http://localhost:5000/api/register/users/${userId}/privacy`, { isPublic: true });
+          await axios.patch(`http://localhost:5000/api/register/users/${userId}/privacy`,
+             { isPublic: true });
           setTempProfile({ ...tempProfile, isPublic: true });
           setProfile((p: any) => ({ ...p, isPublic: true }));
         } catch (err) {
@@ -305,7 +306,7 @@ const ProfilePage = () => {
   }, [activeSection]);
   const handleDeleteAccount = async () => {
     try {
-      await axios.delete(`http://localhost:5000/api/register/users/${userId}`);
+      await axios.delete(`http://localhost/Matrimony-php/backend/api/register/deleteUser.php?id=${userId}`);
       localStorage.clear();
       window.location.href = "/";
     } catch (error) {
