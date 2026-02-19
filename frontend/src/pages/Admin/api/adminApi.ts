@@ -31,7 +31,7 @@ const normalizeUser = (u: any): User => ({
 
 export const fetchUserStats = async (): Promise<UserStatsResponse> => {
     try {
-        const response = await axios.get<{ users: any[] }>('/api/register/users');
+        const response = await axios.get<{ users: any[] }>('/api/register/getUsers.php');
         const apiUsers = response.data.users || [];
 
         // Map/normalize users so frontend components always have expected fields
