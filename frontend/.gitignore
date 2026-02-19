@@ -11,6 +11,9 @@
 # production
 /build
 
+# backend config (IMPORTANT 🔐)
+backend/config/db.php
+
 # misc
 .DS_Store
 .env.local
