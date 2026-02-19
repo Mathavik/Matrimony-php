@@ -16,10 +16,11 @@ const AdminLogin: React.FC = () => {
     setIsLoading(true);
 
     try {
-      const response = await axios.post('/api/admin/login', {
-        username,
-        password
-      });
+     const response = await axios.post('/api/adminAuth/createAdminAuth.php', {
+  username,
+  password
+});
+
 
       if (response.data.success) {
         // Store admin token and info

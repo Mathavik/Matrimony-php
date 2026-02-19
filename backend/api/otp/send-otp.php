@@ -1,7 +1,7 @@
 <?php
 header("Content-Type: application/json");
 // require_once("../../config/db.php");
-$conn = new mysqli("localhost", "root", "maha", "matrimonydb");
+$conn = new mysqli("localhost", "root", "jesi44", "matrimonydb");
 
 $data = json_decode(file_get_contents("php://input"), true);
 
