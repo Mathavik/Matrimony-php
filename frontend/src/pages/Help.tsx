@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import axios from 'axios';
 import { Mail, Phone, MapPin, Send, Heart } from 'lucide-react';
+import axiosInstance from '../axiosInstance';
 
 // Define the shape of the form data
 interface HelpFormData {
@@ -10,7 +11,7 @@ interface HelpFormData {
   message: string;
 }
 
-const API_URL = 'http://localhost:5000/api/help';
+// const API_URL = 'http://localhost:5000/api/help';
 
 // --- WedAura Logo Component ---
 const WedAuraLogo: React.FC = () => (
@@ -40,24 +41,31 @@ const Help: React.FC = () => {
 
   // Handle form submission
   const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setStatus('loading');
-    setMessage('');
+  e.preventDefault();
+  setStatus('loading');
+  setMessage('');
 
-    try {
-      // Send the data to the backend API
-      const response = await axios.post(API_URL, formData);
-      if (response.status === 201) {
-        setStatus('success');
-        setMessage('Your request has been sent successfully! We will get back to you soon.');
-        setFormData({ name: '', email: '', subject: '', message: '' }); // Clear form
-      }
-    } catch (error) {
-      console.error('Submission Error:', error);
+  try {
+    const response = await axiosInstance.post(
+      '/api/Help/createHelp.php',
+      formData
+    );
+
+    if (response.data.status === 'success') {
+      setStatus('success');
+      setMessage('Your request has been sent successfully! We will get back to you soon.');
+      setFormData({ name: '', email: '', subject: '', message: '' });
+    } else {
       setStatus('error');
-      setMessage('Failed to send your request. Please check your connection and try again.');
+      setMessage(response.data.message || 'Something went wrong.');
     }
-  };
+  } catch (error) {
+    console.error('Submission Error:', error);
+    setStatus('error');
+    setMessage('Failed to send your request. Please check your connection and try again.');
+  }
+};
+
 
   // Basic Card component for contact info
   const ContactCard: React.FC<{ icon: React.ReactNode; title: string; detail: string }> = ({ icon, title, detail }) => (
