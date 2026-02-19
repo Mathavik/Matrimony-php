@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import axios from 'axios';
 import { Mail, Phone, MapPin, Send,  } from 'lucide-react';
+import axiosInstance from '../../../axiosInstance';
 
 // Define the shape of the form data
 interface HelpFormData {
@@ -45,7 +46,12 @@ const UserHelp: React.FC = () => {
 
     try {
       // Send the data to the backend API
-      const response = await axios.post(API_URL, formData);
+      // const response = await axios.post(API_URL, formData);
+      const response = await axiosInstance.post(
+  '/api/Help/createHelp.php',
+  formData
+);
+
       if (response.status === 201) {
         setStatus('success');
         setMessage('Your request has been sent successfully! We will get back to you soon.');

@@ -1,7 +1,8 @@
 import React, { useEffect, useState } from "react";
-import axios from "axios";
+// import axios from "axios";
+import axiosInstance from "../../../axiosInstance";
 
-const API_URL = "http://localhost:5000/api/help";
+// const API_URL = "http://localhost:5000/api/help";
 
 interface HelpRequest {
   id: number;
@@ -26,7 +27,11 @@ const AdminHelpRequests: React.FC = () => {
   const fetchHelpRequests = async () => {
     try {
       // API call simulation and fallback data
-      const response = await axios.get(API_URL);
+      // const response = await axios.get(API_URL);
+      const response = await axiosInstance.get(
+  "/api/Help/getHelp.php"
+);
+
       setHelpRequests(response.data.data);
       setLoading(false);
     } catch (err) {
@@ -74,6 +79,10 @@ const AdminHelpRequests: React.FC = () => {
     setUpdatingId(id);
     try {
       // await axios.put(`${API_URL}/status/${id}`, { status });
+await axiosInstance.put(
+  `/api/Help/updateByIdHelp.php?id=${id}`,
+  { status }
+);
 
       // Update UI after success
       setHelpRequests((prev) =>
