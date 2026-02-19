@@ -22,7 +22,7 @@ if (!$email || !$otp) {
     exit;
 }
 
-/* 🔍 Get latest OTP */
+/* Get latest OTP */
 $stmt = $conn->prepare("
     SELECT * FROM otps 
     WHERE email=? 
@@ -42,8 +42,8 @@ if (!$record) {
     exit;
 }
 
-/* ❌ Check OTP match */
-if ($record['otp'] !== $otp) {
+/* Check OTP match */
+if ($record['otp'] != $otp) {
     echo json_encode([
         "message" => "Invalid OTP",
         "code" => "INVALID_OTP"
@@ -51,7 +51,7 @@ if ($record['otp'] !== $otp) {
     exit;
 }
 
-/* ⏰ Check expiry */
+/* Check expiry */
 if (strtotime($record['expiresAt']) < time()) {
     echo json_encode([
         "message" => "OTP expired",
@@ -60,7 +60,7 @@ if (strtotime($record['expiresAt']) < time()) {
     exit;
 }
 
-/* 🔐 Check user already exists */
+/* Check user already exists */
 $checkUser = $conn->prepare("SELECT id FROM users WHERE email=?");
 $checkUser->bind_param("s", $email);
 $checkUser->execute();
@@ -74,7 +74,7 @@ if ($checkUser->num_rows > 0) {
     exit;
 }
 
-/* ✅ Create user */
+/* Create user */
 $insert = $conn->prepare("
     INSERT INTO users 
     (fullName,email,profileFor,gender,status,isPublic,createdAt)
@@ -92,10 +92,8 @@ $insert->bind_param(
 $insert->execute();
 $userId = $insert->insert_id;
 
-/* 🧹 Delete used OTP */
-$deleteOtp = $conn->prepare("DELETE FROM otps WHERE id=?");
-$deleteOtp->bind_param("i", $record['id']);
-$deleteOtp->execute();
+
+
 
 echo json_encode([
     "message" => "OTP verified, user created!",

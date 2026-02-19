@@ -1,47 +1,73 @@
 <?php
 header("Content-Type: application/json");
-// require_once("../../config/db.php");
+
+require_once("../../helpers/emailHelper.php");
+
 $conn = new mysqli("localhost", "root", "maha", "matrimonydb");
+
+if ($conn->connect_error) {
+    die(json_encode(["message" => "DB connection failed"]));
+}
 
 $data = json_decode(file_get_contents("php://input"), true);
 
-$email = $data['email'] ?? '';
-$name = $data['name'] ?? '';
-$relation = $data['relation'] ?? '';
-$gender = $data['gender'] ?? '';
+$email    = trim($data['email'] ?? '');
+$name     = trim($data['name'] ?? '');
+$relation = trim($data['relation'] ?? '');
+$gender   = trim($data['gender'] ?? '');
 
 if (!$email || !$name || !$relation || !$gender) {
     echo json_encode(["message" => "All fields required"]);
     exit;
 }
 
-$check = $conn->prepare("SELECT id FROM users WHERE email=?");
-$check->bind_param("s", $email);
-$check->execute();
-$check->store_result();
+/* Generate OTP */
+$otp = rand(100000, 999999);
+$expiresAt = date("Y-m-d H:i:s", strtotime("+5 minutes"));
 
-if ($check->num_rows > 0) {
+/* Delete old OTP */
+$delete = $conn->prepare("DELETE FROM otps WHERE email=?");
+$delete->bind_param("s", $email);
+$delete->execute();
+
+/* Insert OTP */
+$stmt = $conn->prepare("
+INSERT INTO otps 
+(email,name,gender,relation,otp,expiresAt,registerUserId,createdAt,updatedAt)
+VALUES (?,?,?,?,?,?,NULL,NOW(),NOW())
+");
+
+$stmt->bind_param(
+    "ssssss",
+    $email,
+    $name,
+    $gender,
+    $relation,
+    $otp,
+    $expiresAt
+);
+
+if (!$stmt->execute()) {
     echo json_encode([
-        "message" => "This email already registered",
-        "code" => "ALREADY_REGISTERED"
+        "message" => "DB Insert Failed",
+        "error" => $stmt->error
     ]);
     exit;
 }
 
-$otp = rand(100000, 999999);
-$expiresAt = date("Y-m-d H:i:s", strtotime("+5 minutes"));
+/* Send Email */
+$subject = "Your OTP Verification Code";
+$message = "
+<h2>Hello $name</h2>
+<p>Your OTP is:</p>
+<h1>$otp</h1>
+<p>This OTP valid for 5 minutes.</p>
+";
 
-$stmt = $conn->prepare("
-INSERT INTO otps (email,name,relation,gender,otp,expiresAt,createdAt)
-VALUES (?,?,?,?,?,?,NOW())
-");
-
-$stmt->bind_param("ssssss", $email, $name, $relation, $gender, $otp, $expiresAt);
-$stmt->execute();
+sendEmail($email, $subject, $message, $message);
 
 echo json_encode([
-    "message" => "OTP sent successfully",
-    "otp" => $otp
+    "message" => "OTP sent successfully"
 ]);
 
 $conn->close();
