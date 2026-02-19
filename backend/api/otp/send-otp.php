@@ -2,8 +2,10 @@
 header("Content-Type: application/json");
 
 require_once("../../helpers/emailHelper.php");
+require_once("../../config/db.php");
 
-$conn = new mysqli("localhost", "root", "maha", "matrimonydb");
+
+// $conn = new mysqli(DB_HOST, DB_USER, DB_PASS, DB_NAME, DB_PORT);
 
 if ($conn->connect_error) {
     die(json_encode(["message" => "DB connection failed"]));

@@ -1,8 +1,9 @@
 <?php
 header("Content-Type: application/json");
+require_once(__DIR__ . "/../../config/db.php");
 
 // DB Connection
-$conn = new mysqli("localhost", "root", "maha", "matrimonydb");
+// $conn = new mysqli("localhost", "root", "maha", "matrimonydb");
 
 if ($conn->connect_error) {
     echo json_encode(["message" => "Database connection failed"]);
