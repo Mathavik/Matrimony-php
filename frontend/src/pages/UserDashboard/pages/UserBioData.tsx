@@ -90,7 +90,7 @@ const BioData: React.FC = () => {
   useEffect(() => {
     const fetchProfiles = async () => {
       try {
-        const res = await axios.get("http://localhost:5000/api/register/users");
+        const res = await axios.get("http://localhost/Matrimony-php/backend/api/register/getUsers.php");
         const result = Array.isArray(res.data)
           ? res.data
           : res.data.users || res.data.data || [];

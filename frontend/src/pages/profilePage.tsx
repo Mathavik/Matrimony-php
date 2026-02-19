@@ -243,7 +243,7 @@ const ProfilePage = () => {
       }
 
       const res = await axios.put(
-        `http://localhost:5000/api/register/update/${userId}`,
+        `http://localhost/Matrimony-php/backend/api/register/updateUser.php?id=${userId}`,
         formData,
         { headers: { "Content-Type": "multipart/form-data" } }
       );
@@ -279,7 +279,7 @@ const ProfilePage = () => {
   }, [activeSection]);
   const handleDeleteAccount = async () => {
     try {
-      await axios.delete(`http://localhost:5000/api/register/users/${userId}`);
+      await axios.delete(`http://localhost/Matrimony-php/backend/api/register/deleteUser.php?id=${userId}`);
       localStorage.clear();
       window.location.href = "/";
     } catch (error) {

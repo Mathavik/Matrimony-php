@@ -25,7 +25,8 @@ const Login = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [rememberMe, setRememberMe] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
-  const [errors, setErrors] = useState({});
+  const [errors, setErrors] = useState<FormErrors>({});
+
   const [statusMessage, setStatusMessage] = useState("");
 
   const navigate = useNavigate();
@@ -53,7 +54,7 @@ const Login = () => {
       setIsLoading(true);
 
       try {
-        const response = await fetch("http://localhost:5000/api/register/login", {
+        const response = await fetch("http://localhost/Matrimony-php/backend/api/Register/login.php", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ email: loginId, password }),
