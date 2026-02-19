@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import toast, { Toaster } from "react-hot-toast"; // ✅ Toast
 import bannerImgDesktop from "../../components/assets/generated-image2.png";
 import bannerImgMobile from "../../components/assets/mobilebanner.jpg";
+import axiosInstance from "../../axiosInstance"; 
 
 type RelationKey =
   | "Myself"
@@ -118,38 +119,47 @@ const Banner: React.FC = () => {
 
   // ✅ Send OTP API
   const handleRegister = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!validateEmail(email)) return toast.error("Please enter a valid email!");
-    if (!name) return toast.error("Please enter a name!");
-    if (!relation) return toast.error("Please select relation!");
-    if (relationsRequiringGender.includes(relation) && !gender)
-      return toast.error("Please select gender!");
+  e.preventDefault();
 
-    try {
-      const response = await fetch("http://localhost:5000/api/send-otp", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email, name, relation, gender }),
-      });
-      const data = await response.json();
+  if (!validateEmail(email)) return toast.error("Please enter a valid email!");
+  if (!name) return toast.error("Please enter a name!");
+  if (!relation) return toast.error("Please select relation!");
+  if (relationsRequiringGender.includes(relation) && !gender)
+    return toast.error("Please select gender!");
 
-      if (response.ok) {
-        toast.success(data.message);
-        setShowOtpModal(true);
-      } else {
-        // ✅ **THIS IS WHERE YOUR SNIPPET GOES**
-        if (data.code === "ALREADY_REGISTERED") {
-          toast("You have already registered with this email.");
-          return; // Stop further execution, no OTP modal
-        } else {
-          toast.error(data.message || "Error sending OTP");
-        }
+  try {
+    const response = await axiosInstance.post(
+      "/api/otp/send-otp.php",
+      {
+        email,
+        name,
+        relation,
+        gender,
       }
-    } catch (error) {
-      console.error(error);
+    );
+
+    const data = response.data;
+
+    toast.success(data.message);
+    setShowOtpModal(true);
+
+  } catch (error: any) {
+
+    if (error.response) {
+      const data = error.response.data;
+
+      if (data.code === "ALREADY_REGISTERED") {
+        toast("You have already registered with this email.");
+      } else {
+        toast.error(data.message || "Error sending OTP");
+      }
+
+    } else {
       toast.error("Server error. Try again later.");
     }
-  };
+  }
+};
+
 
 
   const handleOtpChange = (index: number, value: string) => {
@@ -166,45 +176,55 @@ const Banner: React.FC = () => {
 
   // ✅ Verify OTP API
   const handleVerifyOtp = async () => {
-    if (otp.join("").length !== 6) return toast.error("Please enter all 6 digits of OTP");
 
-    try {
-      const response = await fetch("http://localhost:5000/api/verify-otp", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email, otp: otp.join("") }),
-      });
-      const data = await response.json();
+  if (otp.join("").length !== 6)
+    return toast.error("Please enter all 6 digits of OTP");
 
-      if (response.ok) {
-        toast.success(data.message);
-        setShowOtpModal(false);
-        sessionStorage.setItem("otpVerified", "true");
-        sessionStorage.setItem("user", JSON.stringify(data.user));
-        navigate("/register");
-      } else {
-        // Friendly user messages
-        switch (data.code) {
-          case "INVALID_OTP":
-            toast.error("Oops! The OTP you entered is incorrect. Try again.");
-            break;
-          case "OTP_EXPIRED":
-            toast.error("Your OTP has expired. Please request a new one.");
-            setShowOtpModal(false);
-            break;
-          case "ALREADY_REGISTERED":
-            toast("You have already registered with this email.", { icon: "✅" });
-            setShowOtpModal(false);
-            break;
-          default:
-            toast.error(data.message || "Something went wrong. Please try again.");
-        }
+  try {
+    const response = await axiosInstance.post(
+      "/api/otp/verify-otp.php",
+      {
+        email,
+        otp: otp.join("")
       }
-    } catch (error) {
-      console.error(error);
-      toast.error("Server error. Please try again later.");
+    );
+
+    const data = response.data;
+
+    toast.success(data.message);
+
+    setShowOtpModal(false);
+    sessionStorage.setItem("otpVerified", "true");
+    sessionStorage.setItem("user", JSON.stringify(data.user));
+
+    navigate("/register");
+
+  } catch (error: any) {
+
+    if (error.response) {
+      const data = error.response.data;
+
+      switch (data.code) {
+        case "INVALID_OTP":
+          toast.error("Oops! The OTP you entered is incorrect.");
+          break;
+        case "OTP_EXPIRED":
+          toast.error("Your OTP has expired. Please request again.");
+          setShowOtpModal(false);
+          break;
+        case "ALREADY_REGISTERED":
+          toast("You have already registered.", { icon: "✅" });
+          setShowOtpModal(false);
+          break;
+        default:
+          toast.error(data.message || "Something went wrong.");
+      }
+
+    } else {
+      toast.error("Server error. Try again later.");
     }
-  };
+  }
+};
 
 
 
