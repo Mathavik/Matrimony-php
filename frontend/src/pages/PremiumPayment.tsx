@@ -102,56 +102,49 @@ const PremiumPayment = () => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
-  const handlePayment = async () => {
-    const token = localStorage.getItem('token');
-    if (!token) {
-      // Sweet Alert 2 style notification - no actual alert
-      setIsProcessing(true);
-      setTimeout(() => {
-        setIsProcessing(false);
-      }, 500);
-      return;
-    }
+const handlePayment = async () => {
+  if (!userId) {
+    alert("User ID missing");
+    return;
+  }
 
-    setIsProcessing(true);
+  setIsProcessing(true);
 
-    try {
-      const response = await fetch('http://localhost:5000/api/premiumpayment/pay', {
-        method: 'POST',
+  try {
+    const response = await fetch(
+      "http://localhost/Matrimony-php/backend/api/premiumPayment/createPremiumPayment.php",
+      {
+        method: "POST",
         headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`
+          "Content-Type": "application/json"
         },
         body: JSON.stringify({
-          userId: userId,
+          userId,
           amount: premiumPrice,
           duration: premiumDuration,
           paymentMethod
         })
-      });
-
-      const data = await response.json();
-
-      if (response.ok) {
-        // Show success with smooth transition
-        setTimeout(() => {
-          setShowSuccess(true);
-          // Auto navigate after 3 seconds
-          setTimeout(() => {
-            if (userId) navigate(`/userdashboard?userId=${userId}`);
-            else navigate('/userdashboard');
-          }, 3000);
-        }, 500);
-      } else {
-        setIsProcessing(false);
-        // Handle error silently or show inline error
       }
-    } catch (err) {
-      console.error('Payment error:', err);
+    );
+
+    const data = await response.json();
+
+    if (response.ok && data.success) {
+      setShowSuccess(true);
+
+      setTimeout(() => {
+        navigate(`/userdashboard?userId=${userId}`);
+      }, 3000);
+    } else {
+      alert(data.message || "Payment failed");
       setIsProcessing(false);
-      // Handle error silently or show inline error
     }
-  };
+  } catch (err) {
+    console.error("Payment error:", err);
+    setIsProcessing(false);
+  }
+};
+
 
   if (showSuccess) {
     return (

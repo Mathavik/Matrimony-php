@@ -70,7 +70,8 @@ const AdminStoryList: React.FC = () => {
   const fetchStories = async () => {
     setLoading(true);
     try {
-      const res = await axios.get("http://localhost:5000/api/stories/getstories");
+      const res = await axios.get(  "http://localhost/Matrimony-php/backend/api/Story/getStories.php"
+);
       const storiesWithUserId = res.data.filter((s: Story) => s.userId !== undefined) as Story[];
       setAllStories(storiesWithUserId);
     } catch (err) {
@@ -147,7 +148,7 @@ const AdminStoryList: React.FC = () => {
 
     try {
       await axios.delete(
-        `http://localhost:5000/api/stories/deletestory/${storyId}`,
+         `http://localhost/Matrimony-php/backend/api/Story/deleteStoryById.php?id=${storyId}`,
         {
           data: { userId: currentUserId }
         }
@@ -196,7 +197,7 @@ const AdminStoryList: React.FC = () => {
       let res;
       if (editingStory) {
         res = await axios.put(
-          `http://localhost:5000/api/stories/updatestory/${editingStory.id}`,
+        `http://localhost/Matrimony-php/backend/api/Story/updateStoryById.php?id=${editingStory.id}`,
           form,
           { headers: { "Content-Type": "multipart/form-data" } }
         );
@@ -208,7 +209,7 @@ const AdminStoryList: React.FC = () => {
         }
       } else {
         res = await axios.post(
-          "http://localhost:5000/api/stories/submitstory",
+           "http://localhost/Matrimony-php/backend/api/Story/createSubmitStory.php",
           form,
           { headers: { "Content-Type": "multipart/form-data" } }
         );

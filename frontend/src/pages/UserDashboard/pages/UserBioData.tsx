@@ -5,6 +5,7 @@ import { useNavigate, useLocation } from "react-router-dom";
 import Swal from 'sweetalert2';
 import 'sweetalert2/dist/sweetalert2.min.css';
 import Login from '../../../components/Login';
+import axiosInstance from '../../../axiosInstance';
 
 interface UserProfile {
   id: number;
@@ -115,14 +116,25 @@ const BioData: React.FC = () => {
     const fetchFavorites = async () => {
       try {
         if (!userId) return;
-        const res = await axios.get(`http://localhost:5000/api/favorites/${userId}`);
-        const favs = res.data?.favorites || [];
-        const favSet = new Set<number>(favs.map((f: any) => Number(f.favoriteUserId)));
-        setFavorites(favSet);
+
+        const res = await axiosInstance.get(
+          `/api/favorites/getFavorites.php?userId=${userId}`
+        );
+
+        if (res.data.success) {
+          const favs = res.data.favorites || [];
+
+          const favSet = new Set<number>(
+            favs.map((f: any) => Number(f.favoriteUserId))
+          );
+
+          setFavorites(favSet);
+        }
       } catch (err) {
         console.error("Error fetching favorites:", err);
       }
     };
+
 
     fetchProfiles();
     fetchFavorites();
@@ -207,7 +219,7 @@ const BioData: React.FC = () => {
 
       const isFav = favorites.has(favoriteUserId);
       if (isFav) {
-        await axios.post('http://localhost:5000/api/favorites/remove', {
+        await axiosInstance.post('/api/favorites/removeFavorite.php', {
           userId: loggedInUserId,
           favoriteUserId,
         });
@@ -215,7 +227,7 @@ const BioData: React.FC = () => {
         updated.delete(favoriteUserId);
         setFavorites(updated);
       } else {
-        await axios.post('http://localhost:5000/api/favorites/add', {
+        await axiosInstance.post('/api/favorites/addFavorite.php', {
           userId: loggedInUserId,
           favoriteUserId,
         });
@@ -267,17 +279,17 @@ const BioData: React.FC = () => {
       const isPremium = response.data?.user?.isPremium || false;
 
       if (isPremium) {
-          // Navigate inside the UserDashboard to the UserProfileDetails view
-          // Store the selected profile id so the dashboard-details component can read it
-          try {
-            sessionStorage.setItem('selectedProfileId', String(id));
-            sessionStorage.setItem('selectedProfileUserId', String(currentUserId));
-            window.dispatchEvent(new CustomEvent('openUserProfileDetails', { detail: { id, userId: currentUserId } }));
-          } catch (e) {
-            // fallback to route navigation if storage/dispatch fails
-            navigate(`/profiledetails/${id}?userId=${currentUserId}`);
-          }
-        } else {
+        // Navigate inside the UserDashboard to the UserProfileDetails view
+        // Store the selected profile id so the dashboard-details component can read it
+        try {
+          sessionStorage.setItem('selectedProfileId', String(id));
+          sessionStorage.setItem('selectedProfileUserId', String(currentUserId));
+          window.dispatchEvent(new CustomEvent('openUserProfileDetails', { detail: { id, userId: currentUserId } }));
+        } catch (e) {
+          // fallback to route navigation if storage/dispatch fails
+          navigate(`/profiledetails/${id}?userId=${currentUserId}`);
+        }
+      } else {
         Swal.fire({
           icon: 'info',
           title: 'Premium Members Only 💎',

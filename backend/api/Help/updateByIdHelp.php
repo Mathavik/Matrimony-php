@@ -2,6 +2,7 @@
 header("Content-Type: application/json");
 require_once "../../config/db.php";
 
+$conn = getDBConnection();
 
 $id = $_GET['id'] ?? null;
 $data = json_decode(file_get_contents("php://input"), true);
