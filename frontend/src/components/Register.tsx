@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Heart, User, Briefcase, Shield, Info, MapPin, Camera, X, Check, AlertCircle, ArrowRight, ArrowLeft } from 'lucide-react';
-
+import axiosInstance from '../axiosInstance';
 type FormErrors = {
   profileFor?: string;
   fullName?: string;
@@ -204,46 +204,58 @@ const ModernRegister = () => {
 
     setIsLoading(true);
 
-    try {
-      const formDataToSend = new FormData();
+  try {
+  const formDataToSend = new FormData();
 
-      Object.keys(formData).forEach((key) => {
-        if (key !== 'profilePhoto' && key !== 'termsAccepted' &&
-            key !== 'rule1' && key !== 'rule2' && key !== 'rule3' &&
-            key !== 'rule4' && key !== 'rule5') {
-          formDataToSend.append(key, formData[key as keyof typeof formData] as string);
-        }
-      });
+  Object.keys(formData).forEach((key) => {
+    if (
+      key !== "profilePhoto" &&
+      key !== "termsAccepted" &&
+      key !== "rule1" &&
+      key !== "rule2" &&
+      key !== "rule3" &&
+      key !== "rule4" &&
+      key !== "rule5"
+    ) {
+      formDataToSend.append(key, formData[key as keyof typeof formData] as string);
+    }
+  });
 
-      formDataToSend.append('rule1', formData.rule1.toString());
-      formDataToSend.append('rule2', formData.rule2.toString());
-      formDataToSend.append('rule3', formData.rule3.toString());
-      formDataToSend.append('rule4', formData.rule4.toString());
-      formDataToSend.append('rule5', formData.rule5.toString());
+  formDataToSend.append("rule1", formData.rule1.toString());
+  formDataToSend.append("rule2", formData.rule2.toString());
+  formDataToSend.append("rule3", formData.rule3.toString());
+  formDataToSend.append("rule4", formData.rule4.toString());
+  formDataToSend.append("rule5", formData.rule5.toString());
 
-      if (formData.profilePhoto) {
-        formDataToSend.append('profilePhoto', formData.profilePhoto);
-      }
+  if (formData.profilePhoto) {
+    formDataToSend.append("profilePhoto", formData.profilePhoto);
+  }
 
-      const response = await fetch('http://localhost:5000/api/register/register', {
-        method: 'POST',
-        body: formDataToSend,
-      });
+  const response = await axiosInstance.post(
+    "/api/Register/register.php",
+    formDataToSend,
+    {
+      headers: {
+        "Content-Type": "multipart/form-data",
+      },
+    }
+  );
 
-      const data = await response.json();
+  if (response.status === 200) {
+    setIsSuccess(true);
+    setTimeout(() => {
+      window.location.href = "/login";
+    }, 3000);
+  }
 
-      if (response.ok) {
-        setIsSuccess(true);
-        setTimeout(() => {
-          window.location.href = '/login';
-        }, 3000);
-      } else {
-        setErrors({ submit: data.message || 'Registration failed. Please try again.' });
-      }
-    } catch (error) {
-      console.error('Registration error:', error);
-      setErrors({ submit: 'Network error. Please check your connection and try again.' });
-    } finally {
+} catch (error: any) {
+  setErrors({
+    submit:
+      error.response?.data?.message ||
+      "Registration failed. Please try again.",
+  });
+}
+finally {
       setIsLoading(false);
     }
   };

@@ -1,5 +1,8 @@
 <?php
 header("Content-Type: application/json");
+header("Access-Control-Allow-Origin: *");
+header("Access-Control-Allow-Headers: Content-Type");
+
 require_once(__DIR__ . "/../../config/db.php");
 
 // $conn = new mysqli("localhost", "root", "maha", "matrimonydb");
@@ -8,7 +11,9 @@ if ($conn->connect_error) {
     die(json_encode(["message" => "Connection failed"]));
 }
 
-$data = json_decode(file_get_contents("php://input"), true);
+// $data = json_decode(file_get_contents("php://input"), true);
+$data = $_POST;
+
 $email = trim($data['email'] ?? '');
 
 if (!$email) {
