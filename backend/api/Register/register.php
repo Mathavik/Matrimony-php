@@ -1,14 +1,11 @@
 <?php
 header("Content-Type: application/json");
-// require_once("../../config/db.php");
 
 $conn = new mysqli("localhost", "root", "maha", "matrimonydb");
 
 if ($conn->connect_error) {
     die("Connection failed: " . $conn->connect_error);
 }
-
-
 
 $data = json_decode(file_get_contents("php://input"), true);
 
@@ -20,7 +17,7 @@ if (!$email || !$passwordInput) {
     exit;
 }
 
-$password = password_hash($passwordInput,PASSWORD_BCRYPT);
+$password = password_hash($passwordInput, PASSWORD_BCRYPT);
 
 $stmt = $conn->prepare("
 INSERT INTO users (
@@ -39,44 +36,66 @@ if (!$stmt) {
 }
 
 $profilePhoto = "";
-$status = "approved";
+// Database-la length kammaiya irukkuradhala 'approved'-ku badhila '1' use pandrean
+$status = "1"; 
 $isPremium = 0;
 $isPublic = 1;
 
-// The string below has 28 characters: 4 's', 1 'i', 15 's', 8 'i'
+// Assigning to variables to avoid 'passed by reference' error
+$profileFor   = $data['profileFor'] ?? 'Self';
+$fullName     = $data['fullName'] ?? '';
+$gender       = $data['gender'] ?? '';
+$dob          = $data['dob'] ?? '';
+$age          = (int)($data['age'] ?? 0);
+$religion     = $data['religion'] ?? '';
+$motherTongue = $data['motherTongue'] ?? '';
+$maritalStatus = $data['maritalStatus'] ?? '';
+$caste        = $data['caste'] ?? '';
+$height       = $data['height'] ?? '';
+$education    = $data['education'] ?? '';
+$occupation   = $data['occupation'] ?? '';
+$annualIncome = $data['annualIncome'] ?? '';
+$country      = $data['country'] ?? '';
+$state        = $data['state'] ?? '';
+$city         = $data['city'] ?? '';
+$mobile       = $data['mobile'] ?? '';
+$rule1        = (int)($data['rule1'] ?? 0);
+$rule2        = (int)($data['rule2'] ?? 0);
+$rule3        = (int)($data['rule3'] ?? 0);
+$rule4        = (int)($data['rule4'] ?? 0);
+$rule5        = (int)($data['rule5'] ?? 0);
+
 $stmt->bind_param(
     "ssssisssssssssssssssiiiiiiii", 
-    $data['profileFor'],
-    $data['fullName'],
-    $data['gender'],
-    $data['dob'],
-    $data['age'],          // i (1)
-    $data['religion'],
-    $data['motherTongue'],
-    $data['maritalStatus'],
-    $data['caste'],
-    $data['height'],
-    $data['education'],
-    $data['occupation'],
-    $data['annualIncome'],
-    $data['country'],
-    $data['state'],
-    $data['city'],
+    $profileFor,
+    $fullName,
+    $gender,
+    $dob,
+    $age,
+    $religion,
+    $motherTongue,
+    $maritalStatus,
+    $caste,
+    $height,
+    $education,
+    $occupation,
+    $annualIncome,
+    $country,
+    $state,
+    $city,
     $email,
-    $data['mobile'],
+    $mobile,
     $password,
     $profilePhoto,
-    $status,               // End of strings
-    $isPremium,            // i (2)
-    $isPublic,             // i (3)
-    $data['rule1'],        // i (4)
-    $data['rule2'],        // i (5)
-    $data['rule3'],        // i (6)
-    $data['rule4'],        // i (7)
-    $data['rule5']         // i (8)
+    $status,               
+    $isPremium,            
+    $isPublic,             
+    $rule1,   
+    $rule2,   
+    $rule3,   
+    $rule4,   
+    $rule5    
 );
-
-
 
 if ($stmt->execute()) {
     echo json_encode(["message" => "Registration successful"]);
