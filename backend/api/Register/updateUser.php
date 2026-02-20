@@ -8,7 +8,6 @@ if (!$id) {
     echo json_encode(["message" => "User ID required"]);
     exit;
 }
-
 // Hash password if provided
 $password = !empty($_POST['password']) ? password_hash($_POST['password'], PASSWORD_BCRYPT) : null;
 
