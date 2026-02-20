@@ -154,7 +154,7 @@ const ProfilePage = () => {
   const fetchProfile = async () => {
     try {
       setLoading(true);
-      const res = await axios.get(`http://localhost:5000/api/register/users/${userId}`);
+      const res = await axios.get(`http://localhost/Matrimony-php/backend/api/Register/getUserById.php?id=${userId}`);
       const userData = {
         ...res.data.user,
         isPublic: res.data.user.isPublic !== false,
