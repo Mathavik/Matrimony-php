@@ -45,7 +45,8 @@ const Header: React.FC = () => {
       try {
         const [notifRes, sentRes] = await Promise.all([
           axios.get(`http://localhost:5000/api/request/notifications/${userId}`),
-          axios.get(`http://localhost:5000/api/request/sentcount/${userId}`),
+          axios.get(`http://localhost/Matrimony-php/backend/api/Request/getSentInterestCount.php?userId=${userId}`
+),
         ]);
 
         console.log("📊 Notification Count (Received):", notifRes.data.count);
