@@ -73,7 +73,7 @@ const BioData: React.FC = () => {
       // Double-check premium status from server before redirecting
       try {
         const response = await axios.get(
-          `http://localhost:5000/api/premiumpayment/status/${userId}`,
+          `http://localhost/Matrimony-php/backend/api/premiumPayment/getByIdPremiumPayment.php?userId=${userId}`,
           { headers: { Authorization: `Bearer ${token}` } }
         );
 
@@ -158,7 +158,7 @@ const BioData: React.FC = () => {
     const checkPremium = async () => {
       try {
         const res = await axios.get(
-          `http://localhost:5000/api/premiumpayment/status/${userId}`,
+          `http://localhost/Matrimony-php/backend/api/premiumPayment/getByIdPremiumPayment.php?userId=${userId}`,
           { headers: { Authorization: `Bearer ${token}` } }
         );
         setIsPremiumUser(res.data?.user?.isPremium || false);
@@ -275,7 +275,7 @@ const BioData: React.FC = () => {
 
     try {
       const response = await axios.get(
-        `http://localhost:5000/api/premiumpayment/status/${currentUserId}`,
+        `http://localhost/Matrimony-php/backend/api/premiumPayment/getByIdPremiumPayment.php?userId=${currentUserId}`,
         { headers: { Authorization: `Bearer ${token}` } }
       );
 
