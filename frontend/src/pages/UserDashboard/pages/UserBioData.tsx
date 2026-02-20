@@ -118,7 +118,7 @@ const BioData: React.FC = () => {
         if (!userId) return;
 
         const res = await axiosInstance.get(
-          `/api/favorites/getFavorites.php?userId=${userId}`
+          `/api/Favorite/getByIdFavorite.php?userId=${userId}`
         );
 
         if (res.data.success) {
@@ -221,7 +221,7 @@ const BioData: React.FC = () => {
 
       const isFav = favorites.has(favoriteUserId);
       if (isFav) {
-        await axiosInstance.post('/api/favorites/removeFavorite.php', {
+        await axiosInstance.post('/api/Favorite/removeFavorite.php', {
           userId: loggedInUserId,
           favoriteUserId,
         });
@@ -229,7 +229,7 @@ const BioData: React.FC = () => {
         updated.delete(favoriteUserId);
         setFavorites(updated);
       } else {
-        await axiosInstance.post('/api/favorites/addFavorite.php', {
+        await axiosInstance.post('/api/Favorite/createFavorite.php', {
           userId: loggedInUserId,
           favoriteUserId,
         });
