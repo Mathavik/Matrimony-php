@@ -137,9 +137,10 @@ const ProfileDetails: React.FC = () => {
             const userRes = await axios.get(`http://localhost:5000/api/register/users/${routeId}`);
             setUser(userRes.data.user);
 
-            const relatedRes = await axios.get(`http://localhost:5000/api/register/related/${routeId}`);
+            const relatedRes = await axios.get(`http://localhost/Matrimony-php/backend/api/getRelatedProfiles.php?id=${routeId}`);
             setRelatedProfiles(relatedRes.data.relatedProfiles);
-        } catch (err: any) {
+        } 
+        catch (err: any) {
             console.error('Fetch error:', err);
             setError('Failed to load profile details or related profiles.');
         } finally {

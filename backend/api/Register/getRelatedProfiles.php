@@ -1,5 +1,8 @@
 <?php
 header("Content-Type: application/json");
+header("Access-Control-Allow-Origin: *");
+header("Access-Control-Allow-Methods: GET");
+header("Access-Control-Allow-Headers: Content-Type");
 require_once "../../config/db.php"; // un db connection file path correct ah set pannu
 
 if (!isset($_GET['id'])) {
@@ -29,6 +32,7 @@ if ($currentResult->num_rows === 0) {
 $currentUser = $currentResult->fetch_assoc();
 $country = $currentUser['country'];
 $gender  = $currentUser['gender'];
+$oppositeGender = ($gender === "Male") ? "Female" : "Male";
 
 // 2️⃣ Get related users
 $relatedQuery = $conn->prepare("
