@@ -171,10 +171,10 @@ const ProfilePage = () => {
   const fetchRequestCounts = async () => {
     try {
       const sentRes = await axios.get(
-        `http://localhost:5000/api/request/sentcount/${userId}`
+        `http://localhost/Matrimony-php/backend/api/Request/getSentInterestCount.php?userId=${userId}`
       );
       const receivedRes = await axios.get(
-        `http://localhost:5000/api/request/receivedcount/${userId}`
+        `http://localhost/Matrimony-php/backend/api/Request/getReceivedInterestCount.php?userId=${userId}`
       );
 
       setSentCount(sentRes.data.count || 0);
@@ -190,12 +190,12 @@ const ProfilePage = () => {
 
       // Fetch sent interests with user details
       const sentRes = await axios.get(
-        `http://localhost:5000/api/request/sent/${userId}`
+          `http://localhost/Matrimony-php/backend/api/Request/getSentInterests.php?userId=${userId}`
       );
 
       // Fetch received interests with user details  
       const receivedRes = await axios.get(
-        `http://localhost:5000/api/request/received-users/${userId}` // Updated endpoint name
+          `http://localhost/Matrimony-php/backend/api/Request/getReceivedInterests.php?userId=${userId}`
       );
 
       setSentUsers(sentRes.data.users || []);
