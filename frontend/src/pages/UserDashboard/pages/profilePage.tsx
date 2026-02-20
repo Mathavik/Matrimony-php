@@ -231,36 +231,33 @@ const ProfilePage = () => {
     setSelectedFile(null);
   };
 
-  const handleSave = async () => {
-    try {
-      const formData = new FormData();
-      Object.entries(tempProfile).forEach(([key, value]) => {
-        if (value !== null && value !== undefined) {
-          formData.append(key, value as string);
-        }
-      });
-      if (selectedFile) {
-        formData.append("profilePhoto", selectedFile);
+const handleSave = async () => {
+  try {
+    const formData = new FormData();
+
+    Object.entries(tempProfile).forEach(([key, value]) => {
+      if (value !== null && value !== undefined && value !== "") {
+        formData.append(key, value as string);
       }
+    });
 
-      const res = await axios.put(
-         `http://localhost/Matrimony-php/backend/api/register/updateUser.php?id=${userId}`,
-        formData,
-        { headers: { "Content-Type": "multipart/form-data" } }
-      );
+    await axios.post(
+      `http://localhost/Matrimony-php/backend/api/register/updateUser.php?id=${userId}`,
+      formData
+    );
 
-      setProfile(res.data.user);
-      setTempProfile(res.data.user);
-      setIsEditing(false);
-      setSelectedFile(null);
+    await fetchProfile();  // 🔥 important
 
-      setShowSuccessPopup(true);
-      setTimeout(() => setShowSuccessPopup(false), 2000);
-    } catch (err) {
-      console.error(err);
-      alert("Error updating profile.");
-    }
-  };
+    setIsEditing(false);
+    setSelectedFile(null);
+
+    setShowSuccessPopup(true);
+    setTimeout(() => setShowSuccessPopup(false), 2000);
+
+  } catch (err) {
+    console.error(err);
+  }
+};
 
  const handlePrivacyToggle = () => {
   if (!userId) return;
