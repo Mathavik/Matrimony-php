@@ -262,44 +262,51 @@ const ProfilePage = () => {
     }
   };
 
-  const handlePrivacyToggle = () => {
-    if (tempProfile.isPublic) {
-      setShowPrivacyConfirm(true);
-    } else {
-      // make public immediately
-      if (!userId) return;
-      (async () => {
-        try {
-          await axios.patch(`http://localhost:5000/api/register/users/${userId}/privacy`,
-             { isPublic: true });
-          setTempProfile({ ...tempProfile, isPublic: true });
-          setProfile((p: any) => ({ ...p, isPublic: true }));
-        } catch (err) {
-          console.error('Failed to make profile public', err);
-          alert('Failed to make profile public');
-        }
-      })();
-    }
-  };
+ const handlePrivacyToggle = () => {
+  if (!userId) return;
 
-  const confirmPrivacyChange = () => {
-    if (!userId) {
-      setShowPrivacyConfirm(false);
-      return;
-    }
+  if (tempProfile.isPublic) {
+    setShowPrivacyConfirm(true);
+  } else {
     (async () => {
       try {
-        await axios.patch(`http://localhost:5000/api/register/users/${userId}/privacy`, { isPublic: false });
-        setTempProfile({ ...tempProfile, isPublic: false });
-        setProfile((p: any) => ({ ...p, isPublic: false }));
+        await axios.patch(
+          `http://localhost/matrimony-php/backend/api/Register/togglePrivacy.php?id=${userId}`,
+          { isPublic: true },
+          { headers: { "Content-Type": "application/json" } }
+        );
+
+        setTempProfile({ ...tempProfile, isPublic: true });
+        setProfile((p: any) => ({ ...p, isPublic: true }));
+
       } catch (err) {
-        console.error('Failed to make profile private', err);
-        alert('Failed to make profile private');
-      } finally {
-        setShowPrivacyConfirm(false);
+        console.error("Failed to make profile public", err);
       }
     })();
-  };
+  }
+};
+
+  const confirmPrivacyChange = () => {
+  if (!userId) return;
+
+  (async () => {
+    try {
+      await axios.patch(
+        `http://localhost/matrimony-php/backend/api/Register/togglePrivacy.php?id=${userId}`,
+        { isPublic: false },
+        { headers: { "Content-Type": "application/json" } }
+      );
+
+      setTempProfile({ ...tempProfile, isPublic: false });
+      setProfile((p: any) => ({ ...p, isPublic: false }));
+
+    } catch (err) {
+      console.error("Failed to make profile private", err);
+    } finally {
+      setShowPrivacyConfirm(false);
+    }
+  })();
+};
   useEffect(() => {
     const contentBox = document.getElementById("scrollable-box");
     if (contentBox) contentBox.scrollTop = 0;
