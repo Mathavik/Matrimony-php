@@ -127,7 +127,7 @@ const BioData: React.FC = () => {
     const fetchFavorites = async () => {
       try {
         if (!userId) return;
-        const res = await axios.get(`/api/favorites/getFavorites.php?userId=${userId}`);
+        const res = await axios.get(`http://localhost/Matrimony-php/backend/api/favorites/getFavorites.php?userId=${userId}`);
         const favs = res.data?.favorites || [];
         const favSet = new Set<number>(favs.map((f: any) => Number(f.favoriteUserId)));
         setFavorites(favSet);
@@ -230,7 +230,7 @@ const BioData: React.FC = () => {
         updated.delete(favoriteUserId);
         setFavorites(updated);
       } else {
-        await axios.post('http://localhost:5000/api/favorites/add', {
+        await axiosInstance.post('/api/favorites/createFavorite.php', {
           userId: loggedInUserId,
           favoriteUserId,
         });
