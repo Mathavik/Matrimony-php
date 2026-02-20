@@ -154,7 +154,7 @@ const ProfilePage = () => {
   const fetchProfile = async () => {
     try {
       setLoading(true);
-      const res = await axios.get(`http://localhost:5000/api/register/users/${userId}`);
+      const res = await axios.get(`http://localhost/Matrimony-php/backend/api/Register/getUserById.php?id=${userId}`);
       const userData = {
         ...res.data.user,
         isPublic: res.data.user.isPublic !== false,
@@ -171,10 +171,10 @@ const ProfilePage = () => {
   const fetchRequestCounts = async () => {
     try {
       const sentRes = await axios.get(
-        `http://localhost:5000/api/request/sentcount/${userId}`
+        `http://localhost/Matrimony-php/backend/api/Request/getSentInterestCount.php?userId=${userId}`
       );
       const receivedRes = await axios.get(
-        `http://localhost:5000/api/request/receivedcount/${userId}`
+        `http://localhost/Matrimony-php/backend/api/Request/getReceivedInterestCount.php?userId=${userId}`
       );
 
       setSentCount(sentRes.data.count || 0);
@@ -190,12 +190,12 @@ const ProfilePage = () => {
 
       // Fetch sent interests with user details
       const sentRes = await axios.get(
-        `http://localhost:5000/api/request/sent/${userId}`
+          `http://localhost/Matrimony-php/backend/api/Request/getSentInterests.php?userId=${userId}`
       );
 
       // Fetch received interests with user details  
       const receivedRes = await axios.get(
-        `http://localhost:5000/api/request/received-users/${userId}` // Updated endpoint name
+          `http://localhost/Matrimony-php/backend/api/Request/getReceivedInterests.php?userId=${userId}`
       );
 
       setSentUsers(sentRes.data.users || []);
@@ -262,51 +262,58 @@ const ProfilePage = () => {
     }
   };
 
-  const handlePrivacyToggle = () => {
-    if (tempProfile.isPublic) {
-      setShowPrivacyConfirm(true);
-    } else {
-      // make public immediately
-      if (!userId) return;
-      (async () => {
-        try {
-          await axios.patch(`http://localhost:5000/api/register/users/${userId}/privacy`,
-             { isPublic: true });
-          setTempProfile({ ...tempProfile, isPublic: true });
-          setProfile((p: any) => ({ ...p, isPublic: true }));
-        } catch (err) {
-          console.error('Failed to make profile public', err);
-          alert('Failed to make profile public');
-        }
-      })();
-    }
-  };
+ const handlePrivacyToggle = () => {
+  if (!userId) return;
 
-  const confirmPrivacyChange = () => {
-    if (!userId) {
-      setShowPrivacyConfirm(false);
-      return;
-    }
+  if (tempProfile.isPublic) {
+    setShowPrivacyConfirm(true);
+  } else {
     (async () => {
       try {
-        await axios.patch(`http://localhost:5000/api/register/users/${userId}/privacy`, { isPublic: false });
-        setTempProfile({ ...tempProfile, isPublic: false });
-        setProfile((p: any) => ({ ...p, isPublic: false }));
+        await axios.patch(
+          `http://localhost/matrimony-php/backend/api/Register/togglePrivacy.php?id=${userId}`,
+          { isPublic: true },
+          { headers: { "Content-Type": "application/json" } }
+        );
+
+        setTempProfile({ ...tempProfile, isPublic: true });
+        setProfile((p: any) => ({ ...p, isPublic: true }));
+
       } catch (err) {
-        console.error('Failed to make profile private', err);
-        alert('Failed to make profile private');
-      } finally {
-        setShowPrivacyConfirm(false);
+        console.error("Failed to make profile public", err);
       }
     })();
-  };
+  }
+};
+
+  const confirmPrivacyChange = () => {
+  if (!userId) return;
+
+  (async () => {
+    try {
+      await axios.patch(
+        `http://localhost/matrimony-php/backend/api/Register/togglePrivacy.php?id=${userId}`,
+        { isPublic: false },
+        { headers: { "Content-Type": "application/json" } }
+      );
+
+      setTempProfile({ ...tempProfile, isPublic: false });
+      setProfile((p: any) => ({ ...p, isPublic: false }));
+
+    } catch (err) {
+      console.error("Failed to make profile private", err);
+    } finally {
+      setShowPrivacyConfirm(false);
+    }
+  })();
+};
   useEffect(() => {
     const contentBox = document.getElementById("scrollable-box");
     if (contentBox) contentBox.scrollTop = 0;
   }, [activeSection]);
   const handleDeleteAccount = async () => {
     try {
-      await axios.delete(`http://localhost/Matrimony-php/backend/api/register/deleteUser.php?id=${userId}`);
+      await axios.delete(`http://localhost/matrimony-php/backend/api/register/deleteUser.php?id=${userId}`);
       localStorage.clear();
       window.location.href = "/";
     } catch (error) {
