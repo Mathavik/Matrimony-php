@@ -313,7 +313,7 @@ const ProfilePage = () => {
   }, [activeSection]);
   const handleDeleteAccount = async () => {
     try {
-      await axios.delete(`http://localhost/Matrimony-php/backend/api/register/deleteUser.php?id=${userId}`);
+      await axios.delete(`http://localhost/matrimony-php/backend/api/register/deleteUser.php?id=${userId}`);
       localStorage.clear();
       window.location.href = "/";
     } catch (error) {
