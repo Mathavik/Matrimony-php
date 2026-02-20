@@ -2,7 +2,7 @@
 // Database Configuration
 define('DB_HOST', 'localhost');
 define('DB_USER', 'root');
-define('DB_PASS', 'jesi44');
+define('DB_PASS', 'maha');
 define('DB_NAME', 'matrimonydb');
 define('DB_PORT', 3306);
 
