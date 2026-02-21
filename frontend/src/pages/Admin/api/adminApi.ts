@@ -31,7 +31,7 @@ const normalizeUser = (u: any): User => ({
 
 export const fetchUserStats = async (): Promise<UserStatsResponse> => {
     try {
-        const response = await axios.get<{ users: any[] }>('/api/register/getUsers.php');
+        const response = await axios.get<{ users: any[] }>('http://localhost/Matrimony-php/backend/api/register/getUsers.php');
         const apiUsers = response.data.users || [];
 
         // Map/normalize users so frontend components always have expected fields
@@ -58,7 +58,7 @@ export const fetchUserStats = async (): Promise<UserStatsResponse> => {
 
 export const deleteUserById = async (id: number): Promise<void> => {
   try {
-    const response = await axios.delete(`/api/register/users/${id}`);
+    const response = await axios.delete(`http://localhost/matrimony-php/backend/api/register/deleteUser.php?id=${id}`);
     console.log('Delete success:', response.data);
   } catch (error) {
     console.error('Error deleting user:', error);
