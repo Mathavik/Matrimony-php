@@ -235,12 +235,17 @@ const handleSave = async () => {
   try {
     const formData = new FormData();
 
-    Object.entries(tempProfile).forEach(([key, value]) => {
-      if (value !== null && value !== undefined && value !== "") {
-        formData.append(key, value as string);
-      }
-    });
+   Object.entries(tempProfile).forEach(([key, value]) => {
+  if (value !== null && value !== undefined && value !== "") {
 
+    if (key === "isPublic") {
+      formData.append(key, value ? "1" : "0");
+    } else {
+      formData.append(key, value as string);
+    }
+
+  }
+});
     await axios.post(
       `http://localhost/Matrimony-php/backend/api/register/updateUser.php?id=${userId}`,
       formData
