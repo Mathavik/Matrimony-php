@@ -1,5 +1,8 @@
 <?php
 header("Content-Type: application/json");
+header("Access-Control-Allow-Origin: *");
+header("Access-Control-Allow-Headers: Content-Type");
+
 require_once("../../config/db.php");
 
 $id = $_GET['id'] ?? null;
@@ -13,7 +16,38 @@ $fields = [];
 $params = [];
 $types = "";
 
+/* =========================
+   1️⃣ HANDLE IMAGE UPDATE
+========================= */
+
+if (isset($_FILES['profilePhoto']) && $_FILES['profilePhoto']['error'] === 0) {
+
+    $uploadDir = __DIR__ . "/../../uploads/";
+
+    if (!is_dir($uploadDir)) {
+        mkdir($uploadDir, 0777, true);
+    }
+
+    $extension = pathinfo($_FILES["profilePhoto"]["name"], PATHINFO_EXTENSION);
+    $fileName = uniqid() . "." . $extension;
+
+    $targetPath = $uploadDir . $fileName;
+
+    if (move_uploaded_file($_FILES["profilePhoto"]["tmp_name"], $targetPath)) {
+        $fields[] = "profilePhoto=?";
+        $params[] = $fileName;
+        $types .= "s";
+    }
+}
+
+/* =========================
+   2️⃣ HANDLE OTHER FIELDS
+========================= */
+
 foreach ($_POST as $key => $value) {
+
+    // ❌ Skip profilePhoto from POST
+    if ($key === "profilePhoto") continue;
 
     if ($key === "password" && !empty($value)) {
         $value = password_hash($value, PASSWORD_BCRYPT);
@@ -35,6 +69,10 @@ if (empty($fields)) {
     exit;
 }
 
+/* =========================
+   3️⃣ FINAL QUERY
+========================= */
+
 $sql = "UPDATE users SET " . implode(",", $fields) . ", updatedAt=NOW() WHERE id=?";
 $params[] = $id;
 $types .= "i";
@@ -53,3 +91,9 @@ if ($stmt->execute()) {
 
 $conn->close();
 ?>
+
+
+
+
+
+

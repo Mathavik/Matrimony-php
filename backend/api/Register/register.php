@@ -65,7 +65,8 @@ if (isset($_FILES['profilePhoto']) && $_FILES['profilePhoto']['error'] === 0) {
         mkdir($uploadDir, 0777, true);
     }
 
-    $profilePhotoName = time() . "_" . basename($_FILES["profilePhoto"]["name"]);
+$extension = pathinfo($_FILES["profilePhoto"]["name"], PATHINFO_EXTENSION);
+$profilePhotoName = uniqid() . "." . $extension;
     $targetPath = $uploadDir . $profilePhotoName;
 
     if (!move_uploaded_file($_FILES["profilePhoto"]["tmp_name"], $targetPath)) {

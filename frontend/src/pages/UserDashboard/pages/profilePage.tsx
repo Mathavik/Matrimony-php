@@ -77,11 +77,15 @@ const DetailCard = ({
 // ... (UserListItem component remains the same) ...
 
 const UserListItem = ({ user, type }: any) => {
-  const getPhotoUrl = (photo: string | null | undefined) => {
-    if (!photo) return undefined;
-    if (photo.startsWith("http")) return photo;
-    return `http://localhost:5000/uploads/${photo}`;
-  };
+ const getPhotoUrl = (photo: string | null | undefined) => {
+  if (!photo) return undefined;
+
+  // If already full URL
+  if (photo.startsWith("http")) return photo;
+
+  // If only filename stored
+  return `http://localhost/Matrimony-php/backend/uploads/${photo}`;
+};
 
   return (
     <div className="flex items-center gap-3 p-3 bg-white rounded-lg border border-gray-200 hover:border-rose-300 transition-colors">
@@ -258,20 +262,20 @@ const handleSave = async () => {
       }
     });
 
-    console.log("Sending Data:", Object.fromEntries(formData.entries()));
+    // 🔥 ADD THIS FOR IMAGE
+    if (selectedFile) {
+      formData.append("profilePhoto", selectedFile);
+    }
 
     const res = await axios.post(
       `http://localhost/Matrimony-php/backend/api/register/updateUser.php?id=${userId}`,
       formData
     );
 
-    console.log("Response:", res.data);
-
     if (res.data.message === "User updated successfully") {
       await fetchProfile();
       setIsEditing(false);
       setSelectedFile(null);
-
       setShowSuccessPopup(true);
       setTimeout(() => setShowSuccessPopup(false), 2000);
     }
