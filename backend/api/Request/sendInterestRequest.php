@@ -101,7 +101,7 @@ $requestId = $stmt->insert_id;
 
 /* ✅ 6. Send Email */
 
-$BASE_URL = "http://localhost/Matrimony";
+$BASE_URL = "http://localhost/Matrimony-php";
 
 $acceptUrl = $BASE_URL . "/backend/api/Request/handleRequestResponse.php?requestId=" . $requestId . "&status=accepted";
 $rejectUrl = $BASE_URL . "/backend/api/Request/handleRequestResponse.php?requestId=" . $requestId . "&status=rejected";
