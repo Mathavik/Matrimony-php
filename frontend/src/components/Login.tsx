@@ -65,7 +65,7 @@ const Login = () => {
         if (response.ok) {
           setStatusMessage(data.message);
 
-          const userNameFromDB = data.user?.fullName || "User";
+          const userNameFromDB = data.user?.fullName || "";
           localStorage.setItem("token", data.token);
           localStorage.setItem("userName", userNameFromDB);
           localStorage.setItem("userId", data.user?.id);
