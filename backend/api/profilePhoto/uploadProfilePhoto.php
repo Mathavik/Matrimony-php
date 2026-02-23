@@ -15,7 +15,7 @@ if (!$userId || !isset($_FILES['profilePhoto'])) {
     exit;
 }
 
-$uploadDir = "../uploads/";
+$uploadDir = __DIR__ . "/../../uploads/";
 $filename = time() . "_" . basename($_FILES["profilePhoto"]["name"]);
 $targetPath = $uploadDir . $filename;
 

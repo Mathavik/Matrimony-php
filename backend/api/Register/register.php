@@ -5,15 +5,11 @@ header("Access-Control-Allow-Headers: Content-Type");
 
 require_once(__DIR__ . "/../../config/db.php");
 
-// $conn = new mysqli("localhost", "root", "maha", "matrimonydb");
-
 if ($conn->connect_error) {
     die(json_encode(["message" => "Connection failed"]));
 }
 
-// $data = json_decode(file_get_contents("php://input"), true);
 $data = $_POST;
-
 $email = trim($data['email'] ?? '');
 
 if (!$email) {
@@ -21,7 +17,9 @@ if (!$email) {
     exit;
 }
 
-// 1. Check if user was already created during OTP verification
+/* =============================
+   1️⃣ CHECK USER EXISTS
+============================= */
 $check = $conn->prepare("SELECT id FROM users WHERE email = ?");
 $check->bind_param("s", $email);
 $check->execute();
@@ -34,19 +32,10 @@ if (!$user) {
 }
 
 $userId = $user['id'];
-$password = password_hash($data['password'] ?? '', PASSWORD_BCRYPT);
 
-// 2. INSERT-ku badhila UPDATE use pandrom
-$stmt = $conn->prepare("
-    UPDATE users SET 
-    dob = ?, age = ?, religion = ?, motherTongue = ?, maritalStatus = ?, 
-    caste = ?, height = ?, education = ?, occupation = ?, annualIncome = ?, 
-    country = ?, state = ?, city = ?, mobile = ?, password = ?, 
-    status = 'approved', updatedAt = NOW()
-    WHERE id = ?
-");
-
-// Pre-assign variables for bind_param
+/* =============================
+   2️⃣ GET FORM VALUES FIRST
+============================= */
 $dob = $data['dob'] ?? '';
 $age = (int)($data['age'] ?? 0);
 $religion = $data['religion'] ?? '';
@@ -61,20 +50,91 @@ $country = $data['country'] ?? '';
 $state = $data['state'] ?? '';
 $city = $data['city'] ?? '';
 $mobile = $data['mobile'] ?? '';
+$password = password_hash($data['password'] ?? '', PASSWORD_BCRYPT);
 
-$stmt->bind_param(
-    "sisssssssssssssi", 
-    $dob, $age, $religion, $mTongue, $mStatus, 
-    $caste, $height, $edu, $occ, $income, 
-    $country, $state, $city, $mobile, $password, 
-    $userId
-);
+/* =============================
+   3️⃣ HANDLE PHOTO UPLOAD
+============================= */
+$profilePhotoName = null;
 
-if ($stmt->execute()) {
-    echo json_encode(["message" => "Registration Successful (Profile Updated)"]);
-} else {
-    echo json_encode(["message" => "Update failed", "error" => $stmt->error]);
+if (isset($_FILES['profilePhoto']) && $_FILES['profilePhoto']['error'] === 0) {
+
+    $uploadDir = __DIR__ . "/../../uploads/";
+
+    if (!is_dir($uploadDir)) {
+        mkdir($uploadDir, 0777, true);
+    }
+
+    $profilePhotoName = time() . "_" . basename($_FILES["profilePhoto"]["name"]);
+    $targetPath = $uploadDir . $profilePhotoName;
+
+    if (!move_uploaded_file($_FILES["profilePhoto"]["tmp_name"], $targetPath)) {
+        echo json_encode(["message" => "Photo upload failed"]);
+        exit;
+    }
 }
 
+/* =============================
+   4️⃣ UPDATE USER
+============================= */
+
+if ($profilePhotoName) {
+
+    $stmt = $conn->prepare("
+        UPDATE users SET 
+        dob=?, age=?, religion=?, motherTongue=?, maritalStatus=?, 
+        caste=?, height=?, education=?, occupation=?, annualIncome=?, 
+        country=?, state=?, city=?, mobile=?, password=?, 
+        profilePhoto=?, 
+        status='approved', updatedAt=NOW()
+        WHERE id=?
+    ");
+
+    $stmt->bind_param(
+        "sissssssssssssssi",
+        $dob, $age, $religion, $mTongue, $mStatus,
+        $caste, $height, $edu, $occ, $income,
+        $country, $state, $city, $mobile, $password,
+        $profilePhotoName,
+        $userId
+    );
+
+} else {
+
+    $stmt = $conn->prepare("
+        UPDATE users SET 
+        dob=?, age=?, religion=?, motherTongue=?, maritalStatus=?, 
+        caste=?, height=?, education=?, occupation=?, annualIncome=?, 
+        country=?, state=?, city=?, mobile=?, password=?, 
+        status='approved', updatedAt=NOW()
+        WHERE id=?
+    ");
+
+    $stmt->bind_param(
+        "sisssssssssssssi",
+        $dob, $age, $religion, $mTongue, $mStatus,
+        $caste, $height, $edu, $occ, $income,
+        $country, $state, $city, $mobile, $password,
+        $userId
+    );
+}
+
+/* =============================
+   5️⃣ EXECUTE
+============================= */
+
+if ($stmt->execute()) {
+    echo json_encode([
+        "message" => "Registration Successful",
+        "photo" => $profilePhotoName
+    ]);
+} else {
+    echo json_encode([
+        "message" => "Update failed",
+        "error" => $stmt->error
+    ]);
+}
+
+$stmt->close();
 $conn->close();
 ?>
