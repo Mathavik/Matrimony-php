@@ -1,40 +1,43 @@
 <?php
 require_once "../../config/db.php";
 
-
 $filename = $_GET['filename'] ?? null;
 
 if (!$filename) {
     http_response_code(400);
-    exit;
+    exit("Filename missing");
 }
 
-$filePath = "../uploads/" . $filename;
+$filePath = __DIR__ . "/../../uploads/" . $filename;
 
 if (!file_exists($filePath)) {
     http_response_code(404);
     exit("Image not found");
 }
 
-// Check JWT
+/* =========================
+   CHECK JWT FOR PREMIUM
+========================= */
+
 $isPremium = false;
 
 $headers = getallheaders();
 
 if (isset($headers['Authorization'])) {
+
     $token = str_replace("Bearer ", "", $headers['Authorization']);
-
-    $secret = "your-secret-key";
-
     $parts = explode('.', $token);
 
     if (count($parts) === 3) {
+
         $payload = json_decode(base64_decode($parts[1]), true);
         $userId = $payload['id'] ?? null;
 
         if ($userId) {
-            $result = $conn->query("SELECT isPremium FROM users WHERE id=$userId");
-            if ($result->num_rows > 0) {
+
+            $result = $conn->query("SELECT isPremium FROM users WHERE id = $userId");
+
+            if ($result && $result->num_rows > 0) {
                 $user = $result->fetch_assoc();
                 $isPremium = $user['isPremium'];
             }
@@ -42,21 +45,56 @@ if (isset($headers['Authorization'])) {
     }
 }
 
-// If Premium → serve original
+/* =========================
+   IF PREMIUM → ORIGINAL
+========================= */
+
+$extension = strtolower(pathinfo($filePath, PATHINFO_EXTENSION));
+
 if ($isPremium) {
-    header("Content-Type: image/jpeg");
+
+    if ($extension == "png") {
+        header("Content-Type: image/png");
+    } else {
+        header("Content-Type: image/jpeg");
+    }
+
     readfile($filePath);
     exit;
 }
 
-// If Not Premium → Blur using GD
-$image = imagecreatefromjpeg($filePath);
+/* =========================
+   NOT PREMIUM → BLUR IMAGE
+========================= */
 
+if ($extension == "jpg" || $extension == "jpeg") {
+    $image = imagecreatefromjpeg($filePath);
+} elseif ($extension == "png") {
+    $image = imagecreatefrompng($filePath);
+} else {
+    http_response_code(415);
+    exit("Unsupported image type");
+}
+
+if (!$image) {
+    http_response_code(500);
+    exit("Image creation failed");
+}
+
+/* Apply Blur */
 for ($i = 0; $i < 5; $i++) {
     imagefilter($image, IMG_FILTER_GAUSSIAN_BLUR);
 }
 
-header("Content-Type: image/jpeg");
-imagejpeg($image);
+/* Output Image */
+if ($extension == "png") {
+    header("Content-Type: image/png");
+    imagepng($image);
+} else {
+    header("Content-Type: image/jpeg");
+    imagejpeg($image);
+}
+
 imagedestroy($image);
+exit;
 ?>
