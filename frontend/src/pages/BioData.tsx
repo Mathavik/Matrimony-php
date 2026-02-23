@@ -345,7 +345,7 @@ const BioData: React.FC = () => {
             >
               <X className="w-6 h-6 text-gray-600" />
             </button>
-            <Signin />
+            <Login />
           </div>
         </div>
       )}
