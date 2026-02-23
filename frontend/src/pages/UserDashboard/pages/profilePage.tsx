@@ -113,12 +113,12 @@ const UserListItem = ({ user, type }: any) => {
 };
 
 const fieldOptions = {
-  profileFor: ["Self", "Son", "Daughter", "Brother", "Sister", "Relative", "Friend"],
+  profileFor: ["Self","Son","Daughter","Brother","Sister", "Relative", "Friend"],
   genders: ["Male", "Female"],
   religions: ["Hindu", "Christian", "Muslim", "Sikh", "Buddhist", "Jain", "Other"],
-  motherTongues: ["Tamil", "Telugu", "Malayalam", "Kannada", "Hindi", "English", "Marathi", "Bengali", "Other"],
+  motherTongues: ["Tamil","Telugu","Malayalam","Kannada","Hindi","English","Marathi","Bengali","Other"],
   maritalStatuses: ["Never Married", "Divorced", "Widowed", "Awaiting Divorce"],
-  heights: ["4.0", "4.1", "4.2", "4.3", "4.4", "4.5", "4.6", "4.7", "4.8", "4.9", "4.10", "4.11", "5.0", "5.1", "5.2", "5.3", "5.4", "5.5", "5.6", "5.7", "5.8", "5.9", "5.10", "5.11", "6.0", "6.1", "6.2", "6.3", "6.4", "6.5"],
+  heights: ["4.0","4.1","4.2","4.3","4.4","4.5","4.6","4.7","4.8","4.9","4.10","4.11","5.0","5.1", "5.2", "5.3", "5.4", "5.5", "5.6", "5.7", "5.8", "5.9", "5.10", "5.11", "6.0", "6.1", "6.2", "6.3", "6.4", "6.5"],
   countries: ["India", "USA", "UK", "Canada", "Australia", "Other"],
 };
 
@@ -151,22 +151,28 @@ const ProfilePage = () => {
     }
   }, [userId]);
 
-  const fetchProfile = async () => {
-    try {
-      setLoading(true);
-      const res = await axios.get(`http://localhost/Matrimony-php/backend/api/Register/getUserById.php?id=${userId}`);
-      const userData = {
-        ...res.data.user,
-        isPublic: res.data.user.isPublic !== false,
-      };
-      setProfile(userData);
-      setTempProfile(userData);
-    } catch (err) {
-      console.error("Error fetching profile:", err);
-    } finally {
-      setLoading(false);
-    }
-  };
+const fetchProfile = async () => {
+  try {
+    setLoading(true);
+
+    const res = await axios.get(
+      `http://localhost/Matrimony-php/backend/api/Register/getUserById.php?id=${userId}`
+    );
+
+    const userData = {
+      ...res.data.user,
+      isPublic: Number(res.data.user.isPublic) === 1, // 🔥 CORRECT FIX
+    };
+
+    setProfile(userData);
+    setTempProfile(userData);
+
+  } catch (err) {
+    console.error("Error fetching profile:", err);
+  } finally {
+    setLoading(false);
+  }
+};
 
   const fetchRequestCounts = async () => {
     try {
@@ -235,56 +241,73 @@ const handleSave = async () => {
   try {
     const formData = new FormData();
 
-   Object.entries(tempProfile).forEach(([key, value]) => {
-  if (value !== null && value !== undefined && value !== "") {
+    Object.entries(tempProfile).forEach(([key, value]) => {
+      if (
+        value !== null &&
+        value !== undefined &&
+        value !== "" &&
+        key !== "id" &&
+        key !== "createdAt" &&
+        key !== "updatedAt"
+      ) {
+        if (key === "isPublic") {
+          formData.append(key, value ? "1" : "0");
+        } else {
+          formData.append(key, value as string);
+        }
+      }
+    });
 
-    if (key === "isPublic") {
-      formData.append(key, value ? "1" : "0");
-    } else {
-      formData.append(key, value as string);
-    }
+    console.log("Sending Data:", Object.fromEntries(formData.entries()));
 
-  }
-});
-    await axios.post(
+    const res = await axios.post(
       `http://localhost/Matrimony-php/backend/api/register/updateUser.php?id=${userId}`,
       formData
     );
 
-    await fetchProfile();  // 🔥 important
+    console.log("Response:", res.data);
 
-    setIsEditing(false);
-    setSelectedFile(null);
+    if (res.data.message === "User updated successfully") {
+      await fetchProfile();
+      setIsEditing(false);
+      setSelectedFile(null);
 
-    setShowSuccessPopup(true);
-    setTimeout(() => setShowSuccessPopup(false), 2000);
+      setShowSuccessPopup(true);
+      setTimeout(() => setShowSuccessPopup(false), 2000);
+    }
 
   } catch (err) {
-    console.error(err);
+    console.error("Update error:", err);
   }
 };
 
- const handlePrivacyToggle = () => {
+const handlePrivacyToggle = async () => {
   if (!userId) return;
 
-  if (tempProfile.isPublic) {
-    setShowPrivacyConfirm(true);
-  } else {
-    (async () => {
-      try {
-        await axios.patch(
-          `http://localhost/matrimony-php/backend/api/Register/togglePrivacy.php?id=${userId}`,
-          { isPublic: true },
-          { headers: { "Content-Type": "application/json" } }
-        );
+  try {
+    const newValue = !tempProfile.isPublic;
 
-        setTempProfile({ ...tempProfile, isPublic: true });
-        setProfile((p: any) => ({ ...p, isPublic: true }));
+    const res = await axios.patch(
+      `http://localhost/matrimony-php/backend/api/Register/togglePrivacy.php?id=${userId}`,
+      { isPublic: newValue },
+      { headers: {"Content-Type":"application/json"} }
+    );
 
-      } catch (err) {
-        console.error("Failed to make profile public", err);
-      }
-    })();
+    console.log("Toggle Response:", res.data);
+    if (res.data.success) {
+      setTempProfile((prev: any) => ({
+        ...prev,
+        isPublic: newValue,
+      }));
+
+      setProfile((prev: any) => ({
+        ...prev,
+        isPublic: newValue,
+      }));
+    }
+
+  } catch (err) {
+    console.error("Toggle failed:", err);
   }
 };
 
@@ -570,8 +593,7 @@ const handleSave = async () => {
             </div>
           )}
 
-
-          {activeSection === "Connections" && (
+      {activeSection === "Connections" && (
             <div className="space-y-8">
               {/* Sent Interests */}
               <div className='bg-gray-50 p-6 rounded-xl shadow-inner'>
