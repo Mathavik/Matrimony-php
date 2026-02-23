@@ -28,7 +28,7 @@ const Login = () => {
   const [errors, setErrors] = useState<FormErrors>({});
 
   const [statusMessage, setStatusMessage] = useState("");
-
+  const [showRegisterPopup, setShowRegisterPopup] = useState(false);
   const navigate = useNavigate();
   const { setUserName } = useAuth();
 
@@ -54,11 +54,35 @@ const Login = () => {
       setIsLoading(true);
 
       try {
-        const response = await fetch("http://localhost/Matrimony-php/backend/api/Register/login.php", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ email: loginId, password }),
-        });
+        // 🔥 First check if loginId exists
+        const checkResponse = await fetch(
+          "http://localhost/Matrimony-php/backend/api/Register/getUsers.php"
+        );
+
+        const result = await checkResponse.json();
+        const users = result.users || [];
+
+        const userExists = users.some(
+          (user: any) => user.email === loginId
+        );
+        console.log("Login ID not found:", loginId);
+
+        if (!userExists) {
+          console.log("Login ID not found:", loginId);
+          setShowRegisterPopup(true);
+          setIsLoading(false);
+          return;
+        }
+
+        // ✅ If exists → Continue Login API
+        const response = await fetch(
+          "http://localhost/Matrimony-php/backend/api/Register/login.php",
+          {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ email: loginId, password }),
+          }
+        );
 
         const data = await response.json();
 
@@ -78,7 +102,8 @@ const Login = () => {
         } else {
           setErrors({ submit: data.message });
         }
-      } catch (err) {
+      }
+      catch (err) {
         setErrors({ submit: "Network error. Try again later." });
       } finally {
         setIsLoading(false);
@@ -192,6 +217,35 @@ const Login = () => {
             </div> */}
           </form>
         </div>
+
+        {showRegisterPopup && (
+          <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
+            <div className="bg-white rounded-xl p-6 w-full max-w-sm shadow-xl text-center">
+              <h2 className="text-xl font-bold mb-4 text-gray-800">
+                User Not Found
+              </h2>
+              <p className="text-gray-600 mb-6">
+                This Login ID is not registered. Please register first.
+              </p>
+
+              <div className="flex gap-4 justify-center">
+                <button
+                  onClick={() => setShowRegisterPopup(false)}
+                  className="px-4 py-2 bg-gray-200 rounded-lg"
+                >
+                  Cancel
+                </button>
+
+                <button
+                  onClick={() => navigate("/")}
+                  className="px-4 py-2 bg-rose-600 text-white rounded-lg"
+                >
+                  Go to Register
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
       </div>
 
       {/* 🔥 Tailwind Animation */}

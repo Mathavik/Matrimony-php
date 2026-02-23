@@ -235,7 +235,7 @@ const Header: React.FC = () => {
             </div>
           ) : (
             <Link
-              to="/signin"
+              to="/login"
               className={`flex items-center gap-1 px-3 xl:px-4 py-2 border rounded-full transition text-sm lg:text-base whitespace-nowrap ${
                 isTransparentPage && !isScrolled
                   ? "border-white text-white hover:bg-white hover:text-pink-700"
@@ -394,7 +394,7 @@ const Header: React.FC = () => {
                 </div>
               ) : (
                 <Link
-                  to="/signin"
+                  to="/login"
                   onClick={closeMenuWithAnimation}
                   className="flex items-center gap-3 py-3 px-2 text-base text-gray-800 hover:bg-gray-100 rounded-lg transition"
                 >
