@@ -177,32 +177,15 @@ const BioData: React.FC = () => {
     let isMounted = true;
 
     const loadImages = async () => {
-      const updatedProfiles = await Promise.all(
-        profiles.map(async (p) => {
-          if (!p.profilePhoto) return p;
+      const updatedProfiles = profiles.map((p) => {
+        if (!p.profilePhoto) return p;
 
-          const parts = p.profilePhoto.split('/');
-          const filename = parts[parts.length - 1];
-          const endpoint = `http://localhost:5000/api/register/profile-photo/${filename}`;
+        const endpoint =
+          `http://localhost/Matrimony-php/backend/api/profilePhoto/getServerProfilePhoto.php?filename=${encodeURIComponent(p.profilePhoto)}`;
+        return { ...p, imageSrc: endpoint };
+      });
 
-          try {
-            if (token) {
-              const resp = await fetch(endpoint, { headers: { Authorization: `Bearer ${token}` } });
-              if (!resp.ok) throw new Error('Image fetch failed');
-              const blob = await resp.blob();
-              const url = URL.createObjectURL(blob);
-              createdObjectURLs.current.push(url);
-              return { ...p, imageSrc: url };
-            } else {
-              return { ...p, imageSrc: endpoint };
-            }
-          } catch {
-            return { ...p, imageSrc: p.profilePhoto };
-          }
-        })
-      );
-
-      if (isMounted) setProfiles(updatedProfiles);
+      setProfiles(updatedProfiles);
     };
 
     loadImages();
@@ -607,7 +590,6 @@ const BioData: React.FC = () => {
                       className="absolute inset-0 bg-cover bg-center rounded-2xl"
                       style={{
                         backgroundImage: `url(${profile.imageSrc ||
-                          profile.profilePhoto ||
                           "https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_1280.png"
                           })`
                       }}

@@ -36,7 +36,7 @@ const UserRequest: React.FC = () => {
     const [loading, setLoading] = useState(true);
     const [selectedSender, setSelectedSender] = useState<UserRequest["sender"] | null>(null);
 
-    const BASE_URL = "http://localhost:5000";
+    const BASE_URL = "http://localhost/Matrimony-php/backend";
 
     const [message, setMessage] = useState<{ text: string; type: 'success' | 'error' } | null>(null);
 
@@ -57,7 +57,7 @@ const UserRequest: React.FC = () => {
                 return;
             }
 
-            const res = await axios.get(`${BASE_URL}/api/request/received/${user}`);
+            const res = await axios.get(`${BASE_URL}/api/Request/getReceivedRequests.php?userId=${user}`);
             const allRequests = res.data.data || [];
             const pendingOnly = allRequests.filter(
                 (req: UserRequest) => req.status === "pending"
@@ -87,7 +87,7 @@ const UserRequest: React.FC = () => {
     // ✅ Accept / Reject actions
     const handleAccept = async (id: number) => {
         try {
-            await axios.get(`${BASE_URL}/api/request/respond?requestId=${id}&status=accepted`);
+            await axios.get(`${BASE_URL}/api/Request/handleRequestResponse.php?requestId=${id}&status=accepted`);
             setRequests(reqs => {
                 const newReqs = reqs.filter(r => r.id !== id);
                 // ⭐⭐⭐ புதுப்பிப்பு: Accept செய்த பிறகு Custom dispatch function-ஐ அழைக்கவும் ⭐⭐⭐
@@ -104,7 +104,7 @@ const UserRequest: React.FC = () => {
 
     const handleReject = async (id: number) => {
         try {
-            await axios.get(`${BASE_URL}/api/request/respond?requestId=${id}&status=rejected`);
+            await axios.get(`${BASE_URL}/api/Request/handleRequestResponse.php?requestId=${id}&status=rejected`);
             setRequests(reqs => {
                 const newReqs = reqs.filter(r => r.id !== id);
                 // ⭐⭐⭐ புதுப்பிப்பு: Reject செய்த பிறகு Custom dispatch function-ஐ அழைக்கவும் ⭐⭐⭐
