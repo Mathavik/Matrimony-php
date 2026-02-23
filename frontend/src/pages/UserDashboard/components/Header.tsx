@@ -8,9 +8,10 @@ interface HeaderProps {
 }
 const handleLogout = () => {
   // Clear user data and the request count
-  localStorage.removeItem("userToken");
-  localStorage.removeItem("userData");
   localStorage.removeItem("pendingRequestCount");
+  localStorage.removeItem("token");
+  localStorage.removeItem("userId");
+  localStorage.removeItem("userName");
   window.location.href = "/login";
 };
 const UserDashboardHeader: React.FC<HeaderProps> = ({ isDark, onThemeToggle }) => {
@@ -79,12 +80,12 @@ const UserDashboardHeader: React.FC<HeaderProps> = ({ isDark, onThemeToggle }) =
           </button>
 
 
-      <button
-  onClick={onThemeToggle}
-  className="w-10 h-10 rounded-full bg-pink-500 text-white flex items-center justify-center hover:bg-pink-600 transition-colors"
->
-  {isDark ? <Moon size={20} /> : <Sun size={20} />}
-</button>
+          <button
+            onClick={onThemeToggle}
+            className="w-10 h-10 rounded-full bg-pink-500 text-white flex items-center justify-center hover:bg-pink-600 transition-colors"
+          >
+            {isDark ? <Moon size={20} /> : <Sun size={20} />}
+          </button>
 
           <button
             onClick={handleLogout}
