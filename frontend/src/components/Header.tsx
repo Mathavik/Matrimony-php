@@ -372,7 +372,7 @@ const Header: React.FC = () => {
                 <div className="space-y-2">
                   {/* Profile Link */}
                   <Link
-                    to="/myprofile"
+                    to="/UserDashboard"
                     onClick={closeMenuWithAnimation}
                     className="flex items-center gap-3 py-3 px-2 text-base text-gray-800 hover:bg-gray-100 rounded-lg transition"
                   >

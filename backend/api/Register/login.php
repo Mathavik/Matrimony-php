@@ -41,7 +41,6 @@ if (!password_verify($password, $user['password'])) {
     exit;
 }
 
-/* 🔥 Dummy token generate (simple) */
 $token = base64_encode($user['email'] . time());
 
 echo json_encode([

@@ -90,7 +90,7 @@ const BioData: React.FC = () => {
   useEffect(() => {
     const fetchProfiles = async () => {
       try {
-        const res = await axios.get("http://localhost/Matrimony-php/backend/api/register/getUsers.php");
+        const res = await axios.get("http://localhost/Matrimony-php/backend/api/premiumPayment/getPremiumUsers.php");
         const result = Array.isArray(res.data)
           ? res.data
           : res.data.users || res.data.data || [];
@@ -157,8 +157,7 @@ const BioData: React.FC = () => {
     const checkPremium = async () => {
       try {
         const res = await axios.get(
-          // `http://localhost:5000/api/premiumpayment/status/${userId}`,
-                  `http://localhost/Matrimony-php/backend/api/premiumPayment/getByIdPremiumPayment.php?userId=${userId}`,
+          `http://localhost/Matrimony-php/backend/api/premiumPayment/getByIdPremiumPayment.php?userId=${userId}`,
 
           { headers: { Authorization: `Bearer ${token}` } }
         );

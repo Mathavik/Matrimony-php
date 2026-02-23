@@ -134,10 +134,10 @@ const ProfileDetails: React.FC = () => {
             setLoading(true);
             setError(null);
 
-            const userRes = await axios.get(`http://localhost:5000/api/register/users/${routeId}`);
+            const userRes = await axios.get(`http://localhost/Matrimony-php/backend/api/Register/getUserById.php?id=${routeId}`);
             setUser(userRes.data.user);
 
-            const relatedRes = await axios.get(`http://localhost/Matrimony-php/backend/api/getRelatedProfiles.php?id=${routeId}`);
+            const relatedRes = await axios.get(`http://localhost/Matrimony-php/backend/api/Register/getRelatedProfiles.php?id=${routeId}`);
             setRelatedProfiles(relatedRes.data.relatedProfiles);
         } 
         catch (err: any) {
@@ -158,7 +158,7 @@ const ProfileDetails: React.FC = () => {
                 const loggedInUserId = localStorage.getItem("userId");
                 if (!loggedInUserId || !routeId) return;
 
-                const res = await axios.get(`http://localhost:5000/api/request/status`, {
+                const res = await axios.get(`http://localhost/Matrimony-php/backend/api/Request/getRequestStatus.php`, {
                     params: { senderId: loggedInUserId, receiverId: routeId },
                 });
 
@@ -220,7 +220,7 @@ const ProfileDetails: React.FC = () => {
                 return;
             }
 
-            const res = await axios.post("http://localhost:5000/api/request/send", {
+            const res = await axios.post("http://localhost/Matrimony-php/backend/api/Request/sendInterestRequest.php", {
                 senderId: Number(loggedInUserId),
                 receiverId: user!.id,
             });

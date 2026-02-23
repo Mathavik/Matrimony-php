@@ -1,44 +1,53 @@
 <?php
-header("Content-Type: application/json");
-header("Access-Control-Allow-Origin: http://localhost:3000");
-header("Access-Control-Allow-Methods: GET, POST, PUT, DELETE, PATCH, OPTIONS");
-header("Access-Control-Allow-Headers: Content-Type, Authorization");
-require("../../config/db.php");
+require_once "../../config/db.php"; // your DB file
 
-$userId = $_GET['userId'] ?? null;
+$conn = getDBConnection();
 
-if (!$userId) {
+if (!isset($_GET['userId'])) {
     http_response_code(400);
-    echo json_encode(["message" => "User ID required"]);
-    exit;
+    echo json_encode(["message" => "User ID is required"]);
+    exit();
 }
 
-// ✅ Correct table name
-$userResult = $conn->query("SELECT id, fullName, email, isPremium 
-FROM users WHERE id = $userId");
+$userId = intval($_GET['userId']);
 
-if ($userResult->num_rows == 0) {
+// ✅ Get User
+$userQuery = "SELECT id, fullName, email, isPremium FROM users WHERE id = ?";
+$stmt = $conn->prepare($userQuery);
+$stmt->bind_param("i", $userId);
+$stmt->execute();
+$userResult = $stmt->get_result();
+
+if ($userResult->num_rows === 0) {
     http_response_code(404);
     echo json_encode(["message" => "User not found"]);
-    exit;
+    exit();
 }
 
 $user = $userResult->fetch_assoc();
 
-// ✅ Correct payment table
-$paymentResult = $conn->query("
-    SELECT * FROM premiumpayments 
-    WHERE userId = $userId 
-    ORDER BY createdAt DESC 
-    LIMIT 1
-");
+// ✅ Get Last Premium Payment
+$paymentQuery = "SELECT * FROM premiumPayments 
+                 WHERE userId = ? 
+                 ORDER BY createdAt DESC 
+                 LIMIT 1";
 
-$lastPayment = $paymentResult->num_rows > 0 ? 
-    $paymentResult->fetch_assoc() : null;
+$stmt2 = $conn->prepare($paymentQuery);
+$stmt2->bind_param("i", $userId);
+$stmt2->execute();
+$paymentResult = $stmt2->get_result();
 
+$lastPayment = null;
+if ($paymentResult->num_rows > 0) {
+    $lastPayment = $paymentResult->fetch_assoc();
+}
+
+// ✅ Response
 echo json_encode([
     "user" => $user,
     "lastPayment" => $lastPayment,
     "isPremium" => (bool)$user['isPremium']
 ]);
+
+$conn->close();
 ?>
